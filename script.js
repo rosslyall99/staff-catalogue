@@ -12,27 +12,15 @@ async function loadTartans() {
                 }
             }
         );
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
         const data = await response.json();
         renderTartans(data);
     } catch (error) {
         console.error('Error loading tartans:', error);
-        const container = document.getElementById('tartan-list');
-        if (container) {
-            container.innerHTML = `<p class="error">Failed to load tartans. Check console for details.</p>`;
-        }
     }
 }
 
-// --- Render tartans into the page ---
 function renderTartans(tartans) {
     const container = document.getElementById('tartan-list');
-    if (!container) return;
-
     container.innerHTML = '';
 
     tartans.forEach(tartan => {
@@ -44,7 +32,7 @@ function renderTartans(tartans) {
             const img = document.createElement('img');
             img.src = tartan.image_url;
             img.className = 'thumbnail';
-            img.onclick = () => openLightbox(tartan.image_url);
+            img.addEventListener('click', () => openLightbox(tartan.image_url));
             thumbCell.appendChild(img);
         } else {
             thumbCell.textContent = '—';
@@ -75,28 +63,26 @@ function openLightbox(url) {
     modal.style.display = 'block';
 }
 
-// Close lightbox when clicking the X
+// --- Close handlers ---
 document.addEventListener('DOMContentLoaded', () => {
     loadTartans();
 
-    const closeBtn = document.querySelector('#lightbox .close');
+    const closeBtn = document.getElementById('lightbox-close');
     if (closeBtn) {
-        closeBtn.onclick = () => {
+        closeBtn.addEventListener('click', () => {
             document.getElementById('lightbox').style.display = 'none';
-        };
+        });
     }
 
-    // Optional: close when clicking outside the image
     const modal = document.getElementById('lightbox');
     if (modal) {
-        modal.onclick = (e) => {
+        modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
             }
-        };
+        });
     }
 
-    // Optional: close with Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             document.getElementById('lightbox').style.display = 'none';
