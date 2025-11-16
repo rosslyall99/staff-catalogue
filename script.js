@@ -5,26 +5,47 @@ let currentTartanId = null;
 
 async function loadTartans() {
     try {
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers(*)`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
+        const url = `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers(*)`;
+        console.log('[fetch] GET', url);
+        const response = await fetch(url, {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
             }
-        );
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        });
+
+        console.log('[fetch] status', response.status);
+        if (!response.ok) {
+            const text = await response.text().catch(() => '');
+            throw new Error(`HTTP ${response.status}: ${text}`);
+        }
+
         const data = await response.json();
-        renderTartans(data);
+        console.log('[fetch] rows', Array.isArray(data) ? data.length : 'not array', data[0]);
+        renderTartans(Array.isArray(data) ? data : []);
     } catch (error) {
         console.error('Error loading tartans:', error);
+        renderTartans([]); // render empty state so UI stays alive
     }
 }
 
 function renderTartans(tartans) {
     const container = document.getElementById('tartan-list');
+    if (!container) {
+        console.error('Missing #tartan-list container');
+        return;
+    }
     container.innerHTML = '';
+
+    if (!tartans.length) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 6;
+        cell.textContent = 'No tartans found.';
+        row.appendChild(cell);
+        container.appendChild(row);
+        return;
+    }
 
     tartans.forEach(tartan => {
         const row = document.createElement('tr');
@@ -52,9 +73,13 @@ function renderTartans(tartans) {
         weightCell.textContent = tartan.weight || '—';
         row.appendChild(weightCell);
 
-        // Weaver
+        // Weaver (defensive: support embedded or flat field)
+        const weaverName =
+            (tartan.weavers && tartan.weavers.name) ||
+            tartan.weaver_name || // if you later denormalize
+            'Unknown';
         const weaverCell = document.createElement('td');
-        weaverCell.textContent = tartan.weavers?.name || 'Unknown';
+        weaverCell.textContent = weaverName;
         row.appendChild(weaverCell);
 
         // Range
@@ -73,4 +98,136 @@ function renderTartans(tartans) {
 
         const catBtn = document.createElement('button');
         catBtn.innerHTML = '<img src="book-icon.png" alt="Catalogue">';
-        catBtn.addEventListener('click', () => alert('Catalogue modal
+        catBtn.addEventListener('click', () => alert('Catalogue modal not wired yet'));
+        actionsCell.appendChild(catBtn);
+
+        row.appendChild(actionsCell);
+
+        container.appendChild(row);
+    });
+}
+
+/* Lightbox */
+function openLightbox(url, name) {
+    const modal = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    const caption = document.getElementById('lightbox-caption');
+
+    img.src = url || '';
+    caption.textContent = name || '';
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    img.src = '';
+}
+
+/* Edit modal */
+function openEditModal(tartan) {
+    currentTartanId = tartan.id;
+    document.getElementById('edit-name').value = tartan.tartan_name || '';
+    document.getElementById('edit-weaver').value =
+        (tartan.weavers && tartan.weavers.name) || '';
+    document.getElementById('edit-image').value = tartan.image_url || '';
+    document.getElementById('edit-modal').classList.add('open');
+    document.getElementById('edit-modal').setAttribute('aria-hidden', 'false');
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+    document.getElementById('edit-modal').setAttribute('aria-hidden', 'true');
+    currentTartanId = null;
+}
+
+document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentTartanId) return;
+
+    const updated = {
+        tartan_name: document.getElementById('edit-name').value,
+        image_url: document.getElementById('edit-image').value
+        // If you want weaver changes to persist, you need a weaver_id.
+        // For now, we leave it unchanged unless you add a lookup.
+    };
+
+    try {
+        const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`,
+            {
+                method: 'PATCH',
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    Prefer: 'return=representation'
+                },
+                body: JSON.stringify(updated)
+            }
+        );
+        console.log('[PATCH] status', res.status);
+        if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+        closeEditModal();
+        loadTartans(); // refresh
+    } catch (err) {
+        console.error('Error saving tartan:', err);
+    }
+});
+
+document.getElementById('delete-btn')?.addEventListener('click', async () => {
+    if (!currentTartanId) return;
+    if (!confirm('Delete this tartan?')) return;
+
+    try {
+        const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`,
+            {
+                method: 'DELETE',
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                }
+            }
+        );
+        console.log('[DELETE] status', res.status);
+        if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+        closeEditModal();
+        loadTartans();
+    } catch (err) {
+        console.error('Error deleting tartan:', err);
+    }
+});
+
+document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
+
+/* Wire up overlay close + initial load */
+document.addEventListener('DOMContentLoaded', () => {
+    loadTartans();
+
+    document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
+
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+    }
+
+    const editModal = document.getElementById('edit-modal');
+    if (editModal) {
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) closeEditModal();
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+            closeEditModal();
+        }
+    });
+});
