@@ -45,9 +45,26 @@
         <div class="modal-box">
             <h2>Edit Tartan</h2>
             <form id="edit-form">
-                <label>Name:<br><input type="text" id="edit-name" /></label><br>
-                <label>Weaver:<br><input type="text" id="edit-weaver" /></label><br>
-                <label>Image URL:<br><input type="text" id="edit-image" /></label><br>
+                <label>Name:<br>
+                    <input type="text" id="edit-name" />
+                </label><br>
+
+                <label>Weight:<br>
+                    <input type="text" id="edit-weight" />
+                </label><br>
+
+                <label>Range:<br>
+                    <input type="text" id="edit-range" />
+                </label><br>
+
+                <label>Image URL:<br>
+                    <input type="text" id="edit-image" />
+                </label><br>
+
+                <label>Weaver:<br>
+                    <input type="text" id="edit-weaver" disabled />
+                </label><br>
+
                 <div class="modal-actions">
                     <button type="submit">Save</button>
                     <button type="button" id="delete-btn">Delete</button>
@@ -57,7 +74,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=5.0"></script>
+    <script src="script.js?v=6.0"></script>
 </body>
 
 </html>

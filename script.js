@@ -5,47 +5,26 @@ let currentTartanId = null;
 
 async function loadTartans() {
     try {
-        const url = `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers(*)`;
-        console.log('[fetch] GET', url);
-        const response = await fetch(url, {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers(*)`,
+            {
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                }
             }
-        });
-
-        console.log('[fetch] status', response.status);
-        if (!response.ok) {
-            const text = await response.text().catch(() => '');
-            throw new Error(`HTTP ${response.status}: ${text}`);
-        }
-
+        );
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
-        console.log('[fetch] rows', Array.isArray(data) ? data.length : 'not array', data[0]);
-        renderTartans(Array.isArray(data) ? data : []);
+        renderTartans(data);
     } catch (error) {
         console.error('Error loading tartans:', error);
-        renderTartans([]); // render empty state so UI stays alive
     }
 }
 
 function renderTartans(tartans) {
     const container = document.getElementById('tartan-list');
-    if (!container) {
-        console.error('Missing #tartan-list container');
-        return;
-    }
     container.innerHTML = '';
-
-    if (!tartans.length) {
-        const row = document.createElement('tr');
-        const cell = document.createElement('td');
-        cell.colSpan = 6;
-        cell.textContent = 'No tartans found.';
-        row.appendChild(cell);
-        container.appendChild(row);
-        return;
-    }
 
     tartans.forEach(tartan => {
         const row = document.createElement('tr');
@@ -73,13 +52,9 @@ function renderTartans(tartans) {
         weightCell.textContent = tartan.weight || '—';
         row.appendChild(weightCell);
 
-        // Weaver (defensive: support embedded or flat field)
-        const weaverName =
-            (tartan.weavers && tartan.weavers.name) ||
-            tartan.weaver_name || // if you later denormalize
-            'Unknown';
+        // Weaver
         const weaverCell = document.createElement('td');
-        weaverCell.textContent = weaverName;
+        weaverCell.textContent = tartan.weavers?.name || 'Unknown';
         row.appendChild(weaverCell);
 
         // Range
@@ -92,6 +67,7 @@ function renderTartans(tartans) {
         actionsCell.className = 'actions';
 
         const editBtn = document.createElement('button');
+        editBtn.title = "Edit"; // tooltip
         editBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="#333"/></svg>';
         editBtn.addEventListener('click', () => openEditModal(tartan));
         actionsCell.appendChild(editBtn);
@@ -131,9 +107,10 @@ function closeLightbox() {
 function openEditModal(tartan) {
     currentTartanId = tartan.id;
     document.getElementById('edit-name').value = tartan.tartan_name || '';
-    document.getElementById('edit-weaver').value =
-        (tartan.weavers && tartan.weavers.name) || '';
+    document.getElementById('edit-weight').value = tartan.weight || '';
+    document.getElementById('edit-range').value = tartan.range || '';
     document.getElementById('edit-image').value = tartan.image_url || '';
+    document.getElementById('edit-weaver').value = tartan.weavers?.name || 'Unknown';
     document.getElementById('edit-modal').classList.add('open');
     document.getElementById('edit-modal').setAttribute('aria-hidden', 'false');
 }
@@ -144,56 +121,51 @@ function closeEditModal() {
     currentTartanId = null;
 }
 
+// Save changes
 document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentTartanId) return;
 
     const updated = {
         tartan_name: document.getElementById('edit-name').value,
+        weight: document.getElementById('edit-weight').value,
+        range: document.getElementById('edit-range').value,
         image_url: document.getElementById('edit-image').value
-        // If you want weaver changes to persist, you need a weaver_id.
-        // For now, we leave it unchanged unless you add a lookup.
+        // Weaver intentionally excluded
     };
 
     try {
-        const res = await fetch(
-            `${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`,
-            {
-                method: 'PATCH',
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`,
-                    'Content-Type': 'application/json',
-                    Prefer: 'return=representation'
-                },
-                body: JSON.stringify(updated)
-            }
-        );
-        console.log('[PATCH] status', res.status);
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
+            method: 'PATCH',
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=representation'
+            },
+            body: JSON.stringify(updated)
+        });
         if (!res.ok) throw new Error(`Save failed: ${res.status}`);
         closeEditModal();
-        loadTartans(); // refresh
+        loadTartans(); // refresh table
     } catch (err) {
         console.error('Error saving tartan:', err);
     }
 });
 
+// Delete record
 document.getElementById('delete-btn')?.addEventListener('click', async () => {
     if (!currentTartanId) return;
     if (!confirm('Delete this tartan?')) return;
 
     try {
-        const res = await fetch(
-            `${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`,
-            {
-                method: 'DELETE',
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
+            method: 'DELETE',
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
             }
-        );
-        console.log('[DELETE] status', res.status);
+        });
         if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
         closeEditModal();
         loadTartans();
@@ -202,6 +174,7 @@ document.getElementById('delete-btn')?.addEventListener('click', async () => {
     }
 });
 
+// Cancel
 document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
 
 /* Wire up overlay close + initial load */

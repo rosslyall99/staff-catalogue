@@ -130,6 +130,12 @@ td {
     border-radius: 4px;
 }
 
+.modal-box input:disabled {
+    background: #eee;
+    color: #666;
+    cursor: not-allowed;
+}
+
 .modal-actions {
     display: flex;
     justify-content: space-between;
