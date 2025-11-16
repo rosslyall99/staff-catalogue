@@ -219,3 +219,24 @@ td {
     color: #666;
     cursor: not-allowed;
 }
+
+@media (max-width: 600px) {
+    .thumbnail {
+        width: 48px;
+        height: auto;
+        border-radius: 4px;
+    }
+
+    th,
+    tr {
+        font-size: 0.7rem;
+        padding: 0.2rem;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+        width: 52px;
+        /* gives a little breathing room */
+        padding: 0.2rem;
+    }
+}
