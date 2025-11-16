@@ -1,8 +1,6 @@
-// --- Supabase config ---
-const SUPABASE_URL = 'https://obibnblucftyzbtzequj.supabase.co'; // replace with your Supabase project URL
-const SUPABASE_KEY = 'sb_publishable_xMBkFtpKK33NGoiJ9-7nAQ_P1D2Ai4g'; // replace with your anon key
+const SUPABASE_URL = 'https://obibnblucftyzbtzequj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_xMBkFtpKK33NGoiJ9-7nAQ_P1D2Ai4g';
 
-// --- Fetch tartans with embedded weaver info ---
 async function loadTartans() {
     try {
         const response = await fetch(
@@ -14,52 +12,90 @@ async function loadTartans() {
                 }
             }
         );
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
         const data = await response.json();
-        renderTartans(data);
+        renderTable(data);
     } catch (error) {
         console.error('Error loading tartans:', error);
-        const container = document.getElementById('tartan-list');
-        if (container) {
-            container.innerHTML = `<p class="error">Failed to load tartans. Check console for details.</p>`;
-        }
     }
 }
 
-// --- Render tartans into the page ---
-function renderTartans(tartans) {
-    const container = document.getElementById('tartan-list');
-    if (!container) return;
-
-    container.innerHTML = '';
+function renderTable(tartans) {
+    const tbody = document.getElementById('tartan-list');
+    tbody.innerHTML = '';
 
     tartans.forEach(tartan => {
-        const card = document.createElement('div');
-        card.className = 'tartan-card';
+        const row = document.createElement('tr');
 
-        card.innerHTML = `
-      <h3>${tartan.tartan_name}</h3>
-      <p><strong>Clan:</strong> ${tartan.clan || '—'}</p>
-      <p><strong>Range:</strong> ${tartan.range || '—'}</p>
-      <p><strong>Weight:</strong> ${tartan.weight || '—'}</p>
-      <p><strong>Weaver:</strong> ${tartan.weavers?.name || 'Unknown'}</p>
-      <p><strong>Website:</strong> ${tartan.weavers?.website
-                ? `<a href="${tartan.weavers.website}" target="_blank">${tartan.weavers.website}</a>`
-                : '—'
-            }</p>
-      ${tartan.image_url
-                ? `<img src="${tartan.image_url}" alt="${tartan.tartan_name}" class="tartan-image"/>`
-                : ''
-            }
-    `;
+        // Thumbnail
+        const thumbCell = document.createElement('td');
+        if (tartan.image_url) {
+            const img = document.createElement('img');
+            img.src = tartan.image_url;
+            img.className = 'thumbnail';
+            img.onclick = () => openLightbox(tartan.image_url);
+            thumbCell.appendChild(img);
+        }
+        row.appendChild(thumbCell);
 
-        container.appendChild(card);
+        // Tartan name
+        row.innerHTML += `<td>${tartan.tartan_name}</td>`;
+        // Weight
+        row.innerHTML += `<td>${tartan.weight || '—'}</td>`;
+        // Weaver
+        row.innerHTML += `<td>${tartan.weavers?.name || 'Unknown'}</td>`;
+        // Range
+        row.innerHTML += `<td>${tartan.range || '—'}</td>`;
+
+        // Actions
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'actions';
+
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = '<img src="pencil-icon.png" alt="Edit">';
+        editBtn.onclick = () => openEditModal(tartan);
+        actionsCell.appendChild(editBtn);
+
+        // Catalogue button
+        const catBtn = document.createElement('button');
+        catBtn.innerHTML = '<img src="book-icon.png" alt="Catalogue">';
+        catBtn.onclick = () => openCatalogueModal(tartan);
+        actionsCell.appendChild(catBtn);
+
+        row.appendChild(actionsCell);
+        tbody.appendChild(row);
     });
 }
 
-// --- Run on page load ---
+// --- Lightbox ---
+function openLightbox(url) {
+    const modal = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    img.src = url;
+    modal.style.display = 'block';
+}
+document.querySelectorAll('.modal .close').forEach(el => {
+    el.onclick = () => el.parentElement.parentElement.style.display = 'none';
+});
+
+// --- Edit Modal ---
+function openEditModal(tartan) {
+    document.getElementById('edit-tartan-name').value = tartan.tartan_name;
+    document.getElementById('edit-weight').value = tartan.weight;
+    document.getElementById('edit-image-url').value = tartan.image_url;
+    document.getElementById('edit-range').value = tartan.range;
+    document.getElementById('edit-modal').style.display = 'block';
+}
+
+// --- Catalogue Modal ---
+function openCatalogueModal(tartan) {
+    const details = document.getElementById('catalogue-details');
+    details.innerHTML = `
+    <p><strong>Weaver:</strong> ${tartan.weavers?.name || 'Unknown'}</p>
+    <p><strong>Website:</strong> ${tartan.weavers?.website || '—'}</p>
+    <p><strong>Prices:</strong> ${JSON.stringify(tartan.prices || {}, null, 2)}</p>
+  `;
+    document.getElementById('catalogue-modal').style.display = 'block';
+}
+
 document.addEventListener('DOMContentLoaded', loadTartans);
