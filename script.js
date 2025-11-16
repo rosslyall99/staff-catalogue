@@ -122,7 +122,7 @@ function closeEditModal() {
 }
 
 // Save changes
-document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentTartanId) return;
 
@@ -131,10 +131,11 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
         weight: document.getElementById('edit-weight').value,
         range: document.getElementById('edit-range').value,
         image_url: document.getElementById('edit-image').value
-        // Weaver intentionally excluded
     };
 
     try {
+        console.log("Saving tartan", currentTartanId, updated);
+
         const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
             method: 'PATCH',
             headers: {
@@ -145,6 +146,10 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
             },
             body: JSON.stringify(updated)
         });
+
+        const result = await res.json();
+        console.log("PATCH result", res.status, result);
+
         if (!res.ok) throw new Error(`Save failed: ${res.status}`);
         closeEditModal();
         loadTartans(); // refresh table
