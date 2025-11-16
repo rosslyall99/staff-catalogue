@@ -1,6 +1,6 @@
 // ===== CONFIG =====
 const SUPABASE_URL = 'https://obibnblucftyzbtzequj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iaWJuYmx1Y2Z0eXpidHplcXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxMjE2MDcsImV4cCI6MjA3ODY5NzYwN30.f60ZZIQh0lntvTACdKU0HuLUHgtsbQbwq_csFdeQcRc'; // staff-only page: okay for now if RLS limits data
+const SUPABASE_KEY = 'sb_publishable_xMBkFtpKK33NGoiJ9-7nAQ_P1D2Ai4g'; // staff-only page: okay for now if RLS limits data
 
 // Base select for grid
 const GRID_SELECT = [
@@ -29,8 +29,9 @@ const FULL_SELECT = [
 
 // ===== UTIL =====
 const headers = {
-    apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iaWJuYmx1Y2Z0eXpidHplcXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxMjE2MDcsImV4cCI6MjA3ODY5NzYwN30.f60ZZIQh0lntvTACdKU0HuLUHgtsbQbwq_csFdeQcRc,
-    Authorization: `Bearer ${eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iaWJuYmx1Y2Z0eXpidHplcXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxMjE2MDcsImV4cCI6MjA3ODY5NzYwN30.f60ZZIQh0lntvTACdKU0HuLUHgtsbQbwq_csFdeQcRc}`
+    apikey: sb_publishable_xMBkFtpKK33NGoiJ9 - 7nAQ_P1D2Ai4g,
+    Authorization: `Bearer ${sb_publishable_xMBkFtpKK33NGoiJ9 - 7nAQ_P1D2Ai4g
+}`
 };
 
 const debounce = (fn, delay = 250) => {
@@ -43,12 +44,12 @@ const debounce = (fn, delay = 250) => {
 
 const qs = (o) =>
     Object.entries(o)
-        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .map(([k, v]) => `${ encodeURIComponent(k)}=${ encodeURIComponent(v) } `)
         .join('&');
 
 // ===== API =====
 async function fetchGrid(q = '') {
-    const base = `${SUPABASE_URL}/rest/v1/tartans`;
+    const base = `${ SUPABASE_URL } /rest/v1 / tartans`;
     const params = {
         select: GRID_SELECT,
         order: 'tartan_name.asc',
@@ -58,27 +59,27 @@ async function fetchGrid(q = '') {
     if (q && q.trim().length > 0) {
         const term = q.trim();
         // Search across name, range, and weaver name
-        params.or = `(tartan_name.ilike.*${term}*,range.ilike.*${term}*,weavers.name.ilike.*${term}*)`;
+        params.or = `(tartan_name.ilike.* ${ term } *, range.ilike.* ${ term } *, weavers.name.ilike.* ${ term } *)`;
     }
 
-    const url = `${base}?${qs(params)}`;
+    const url = `${ base }?${ qs(params) } `;
 
     const res = await fetch(url, { headers });
-    if (!res.ok) throw new Error(`Grid fetch failed: ${res.status}`);
+    if (!res.ok) throw new Error(`Grid fetch failed: ${ res.status } `);
     return res.json();
 }
 
 async function fetchDetail(id) {
-    const base = `${SUPABASE_URL}/rest/v1/tartans`;
+    const base = `${ SUPABASE_URL } /rest/v1 / tartans`;
     const params = {
         select: FULL_SELECT,
-        id: `eq.${id}`,
+        id: `eq.${ id } `,
         limit: '1'
     };
-    const url = `${base}?${qs(params)}`;
+    const url = `${ base }?${ qs(params) } `;
 
     const res = await fetch(url, { headers });
-    if (!res.ok) throw new Error(`Detail fetch failed: ${res.status}`);
+    if (!res.ok) throw new Error(`Detail fetch failed: ${ res.status } `);
     const data = await res.json();
     return data[0];
 }
@@ -134,11 +135,11 @@ function renderModal(data) {
 
     const weaver = data.weavers || {};
     document.getElementById('modalWeaver').innerHTML = `
-    <strong>Weaver:</strong> ${weaver.name ?? ''}
-    <br /><strong>Website:</strong> ${weaver.website ? `<a href="${weaver.website}" target="_blank">${weaver.website}</a>` : '—'}
-    <br /><strong>Email:</strong> ${weaver.email ?? '—'}
-    <br /><strong>Phone:</strong> ${weaver.phone ?? '—'}
-  `;
+    < strong > Weaver:</strong > ${ weaver.name ?? '' }
+    <br /><strong>Website:</strong> ${ weaver.website ? `<a href="${weaver.website}" target="_blank">${weaver.website}</a>` : '—' }
+    <br /><strong>Email:</strong> ${ weaver.email ?? '—' }
+    <br /><strong>Phone:</strong> ${ weaver.phone ?? '—' }
+`;
 
     document.getElementById('modalDescription').textContent = data.description ?? '';
 
@@ -148,7 +149,7 @@ function renderModal(data) {
     Object.entries(prices).forEach(([label, value]) => {
         const div = document.createElement('div');
         div.className = 'price-item';
-        div.innerHTML = `<strong>${label}:</strong> ${value}`;
+        div.innerHTML = `< strong > ${ label }:</strong > ${ value } `;
         pricesEl.appendChild(div);
     });
 
@@ -163,7 +164,7 @@ async function openModal(id) {
         const data = await fetchDetail(id);
         renderModal(data);
     } catch (e) {
-        alert(`Failed to load details: ${e.message}`);
+        alert(`Failed to load details: ${ e.message } `);
     }
 }
 
@@ -178,7 +179,7 @@ async function init() {
         const rows = await fetchGrid('');
         renderRows(rows);
     } catch (e) {
-        alert(`Initial load failed: ${e.message}`);
+        alert(`Initial load failed: ${ e.message } `);
     }
 
     // Wire search
