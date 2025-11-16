@@ -1,13 +1,13 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: sans-serif;
     margin: 0;
-    background: #f4f4f4;
+    background: #f9f9f9;
     color: #333;
 }
 
 header {
     background: #2c3e50;
-    color: #fff;
+    color: white;
     padding: 1rem;
     text-align: center;
 }
@@ -16,7 +16,8 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin: 1rem auto;
-    background: #fff;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 th,
@@ -24,110 +25,31 @@ td {
     border: 1px solid #ccc;
     padding: 0.5rem;
     text-align: center;
+    vertical-align: middle;
 }
 
 .thumbnail {
-    width: 50px;
+    height: 60px;
+    width: auto;
+    max-width: 100px;
+    object-fit: cover;
     cursor: pointer;
+    border-radius: 4px;
 }
 
 .actions button {
     background: none;
-
-    body {
-        font-family: sans-serif;
-        margin: 0;
-        background: #f9f9f9;
-        color: #333;
-    }
-
-    header {
-        background: #2c3e50;
-        color: white;
-        padding: 1rem;
-        text-align: center;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 1rem auto;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    th,
-    td {
-        border: 1px solid #ccc;
-        padding: 0.5rem;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .thumbnail {
-        height: 60px;
-        /* match row height */
-        width: auto;
-        max-width: 100px;
-        object-fit: cover;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-
-    .actions button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        margin: 0 4px;
-    }
-
-    .actions img {
-        width: 20px;
-        height: 20px;
-    }
-
-    /* Lightbox */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        transition: opacity 0.3s ease;
-    }
-
-    .modal img {
-        display: block;
-        max-width: 90vw;
-        max-height: 90vh;
-        margin: auto;
-        border-radius: 6px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal .close {
-        position: absolute;
-        top: 20px;
-        right: 30px;
-        font-size: 2rem;
-        color: white;
-        cursor: pointer;
-    }
-
     border: none;
     cursor: pointer;
-    margin: 0 5px;
+    margin: 0 4px;
 }
 
-.actions button img {
+.actions img {
     width: 20px;
     height: 20px;
 }
 
-/* Modals */
+/* Lightbox */
 .modal {
     display: none;
     position: fixed;
@@ -136,19 +58,23 @@ td {
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
 }
 
-.modal-content {
-    background: #fff;
-    margin: 10% auto;
-    padding: 1rem;
-    width: 400px;
+.modal img {
+    display: block;
+    max-width: 90vw;
+    max-height: 90vh;
+    margin: auto;
     border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .close {
-    float: right;
-    font-size: 1.5rem;
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 2rem;
+    color: white;
     cursor: pointer;
 }

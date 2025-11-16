@@ -60,11 +60,11 @@ function renderTartans(tartans) {
 
 // --- Lightbox logic ---
 function openLightbox(url) {
+    console.log("Opening lightbox for:", url);
     const modal = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
     img.src = url;
     modal.style.display = 'block';
-    console.log("Opening lightbox for:", url);
 }
 
 // --- Close handlers ---
