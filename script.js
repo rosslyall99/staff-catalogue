@@ -68,16 +68,13 @@ function renderTartans(tartans) {
 
         const editBtn = document.createElement('button');
         editBtn.title = "Edit"; // tooltip
-        editBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="#333"/></svg>';
+        editBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="22" height="22">`;
         editBtn.addEventListener('click', () => openEditModal(tartan));
         actionsCell.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
         catBtn.title = "Catalogue";
-        catBtn.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="#333">
-        <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
-      </svg>`;
+        catBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="22" height="22">`;
         catBtn.addEventListener('click', () => alert('Catalogue modal not wired yet'));
         actionsCell.appendChild(catBtn);
 
