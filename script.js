@@ -37,7 +37,7 @@ function renderTartans(tartans) {
             img.className = 'thumbnail';
             img.addEventListener('click', () => {
                 console.log("Thumbnail clicked:", tartan.image_url);
-                openLightbox(tartan.image_url);
+                openLightbox(tartan.image_url, tartan.tartan_name);
             });
             thumbCell.appendChild(img);
         } else {
@@ -86,12 +86,15 @@ function renderTartans(tartans) {
 }
 
 // Lightbox
-function openLightbox(url) {
+function openLightbox(url, name) {
     console.log("Opening lightbox for:", url);
     const modal = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
+    const caption = document.getElementById('lightbox-caption');
+
     img.src = url;
-    modal.style.display = 'block';
+    caption.textContent = name || '';
+    modal.style.display = 'flex'; // flexbox centering
 }
 
 // Close handlers
