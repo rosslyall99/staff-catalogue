@@ -130,7 +130,7 @@ function closeEditModal() {
 }
 
 // Save changes
-document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentTartanId) return;
 
@@ -144,7 +144,8 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
     try {
         console.log("Saving tartan", currentTartanId, updated);
 
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
+        // IMPORTANT: replace 'id' with your actual PK column name
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?tartan_id=eq.${currentTartanId}`, {
             method: 'PATCH',
             headers: {
                 apikey: SUPABASE_KEY,
