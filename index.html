@@ -36,11 +36,28 @@
         <span id="lightbox-close" class="close" aria-label="Close">&times;</span>
         <figure class="modal-content">
             <img id="lightbox-img" src="" alt="Tartan preview" />
-            <figcaption id="lightbox-caption" role="note"></figcaption>
+            <figcaption id="lightbox-caption"></figcaption>
         </figure>
     </div>
 
-    <script src="script.js?v=4.1"></script>
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal" aria-hidden="true">
+        <div class="modal-box">
+            <h2>Edit Tartan</h2>
+            <form id="edit-form">
+                <label>Name:<br><input type="text" id="edit-name" /></label><br>
+                <label>Weaver:<br><input type="text" id="edit-weaver" /></label><br>
+                <label>Image URL:<br><input type="text" id="edit-image" /></label><br>
+                <div class="modal-actions">
+                    <button type="submit">Save</button>
+                    <button type="button" id="delete-btn">Delete</button>
+                    <button type="button" id="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js?v=5.0"></script>
 </body>
 
 </html>

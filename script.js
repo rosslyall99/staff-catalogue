@@ -1,6 +1,8 @@
 const SUPABASE_URL = 'https://obibnblucftyzbtzequj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_xMBkFtpKK33NGoiJ9-7nAQ_P1D2Ai4g';
 
+let currentTartanId = null;
+
 async function loadTartans() {
     try {
         const response = await fetch(
@@ -12,9 +14,7 @@ async function loadTartans() {
                 }
             }
         );
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         renderTartans(data);
     } catch (error) {
@@ -35,9 +35,7 @@ function renderTartans(tartans) {
             const img = document.createElement('img');
             img.src = tartan.image_url;
             img.className = 'thumbnail';
-            img.addEventListener('click', () => {
-                openLightbox(tartan.image_url, tartan.tartan_name);
-            });
+            img.addEventListener('click', () => openLightbox(tartan.image_url, tartan.tartan_name));
             thumbCell.appendChild(img);
         } else {
             thumbCell.textContent = '—';
@@ -56,8 +54,7 @@ function renderTartans(tartans) {
 
         // Weaver
         const weaverCell = document.createElement('td');
-        weaverCell.textContent =
-            (tartan.weavers && tartan.weavers.name) ? tartan.weavers.name : 'Unknown';
+        weaverCell.textContent = tartan.weavers?.name || 'Unknown';
         row.appendChild(weaverCell);
 
         // Range
@@ -70,59 +67,10 @@ function renderTartans(tartans) {
         actionsCell.className = 'actions';
 
         const editBtn = document.createElement('button');
-        editBtn.innerHTML = '<img src="pencil-icon.png" alt="Edit">';
-        editBtn.addEventListener('click', () => alert('Edit modal not wired yet'));
+        editBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="#333"/></svg>';
+        editBtn.addEventListener('click', () => openEditModal(tartan));
         actionsCell.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
         catBtn.innerHTML = '<img src="book-icon.png" alt="Catalogue">';
-        catBtn.addEventListener('click', () => alert('Catalogue modal not wired yet'));
-        actionsCell.appendChild(catBtn);
-
-        row.appendChild(actionsCell);
-
-        container.appendChild(row);
-    });
-}
-
-// Lightbox open/close with class toggle
-function openLightbox(url, name) {
-    const modal = document.getElementById('lightbox');
-    const img = document.getElementById('lightbox-img');
-    const caption = document.getElementById('lightbox-caption');
-
-    img.src = url || '';
-    caption.textContent = name || '';
-    modal.classList.add('open');           // show via class
-    modal.setAttribute('aria-hidden', 'false');
-}
-
-function closeLightbox() {
-    const modal = document.getElementById('lightbox');
-    const img = document.getElementById('lightbox-img');
-
-    modal.classList.remove('open');        // hide via class
-    modal.setAttribute('aria-hidden', 'true');
-    img.src = '';                          // clear src to avoid spinner
-}
-
-// Wire up close actions + load data
-document.addEventListener('DOMContentLoaded', () => {
-    loadTartans();
-
-    const closeBtn = document.getElementById('lightbox-close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeLightbox);
-    }
-
-    const modal = document.getElementById('lightbox');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeLightbox();
-        });
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeLightbox();
-    });
-});
+        catBtn.addEventListener('click', () => alert('Catalogue modal
