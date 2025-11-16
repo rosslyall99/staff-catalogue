@@ -2,6 +2,7 @@ const SUPABASE_URL = 'https://obibnblucftyzbtzequj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_xMBkFtpKK33NGoiJ9-7nAQ_P1D2Ai4g';
 
 let currentTartanId = null;
+let allTartans = []; // store full list for filtering
 
 async function loadTartans() {
     try {
@@ -16,7 +17,8 @@ async function loadTartans() {
         );
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
-        renderTartans(data);
+        allTartans = data;
+        renderTartans(allTartans);
     } catch (error) {
         console.error('Error loading tartans:', error);
     }
@@ -282,5 +284,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('catalogue-modal');
         modal.classList.remove('open');
         modal.setAttribute('aria-hidden', 'true');
+    });
+
+    document.getElementById('search-input')?.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = allTartans.filter(tartan =>
+            (tartan.tartan_name || '').toLowerCase().includes(query) ||
+            (tartan.weight || '').toLowerCase().includes(query) ||
+            (tartan.range || '').toLowerCase().includes(query) ||
+            (tartan.weavers?.name || '').toLowerCase().includes(query)
+        );
+        renderTartans(filtered);
     });
 });
