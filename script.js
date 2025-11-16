@@ -12,21 +12,33 @@ async function loadTartans() {
                 }
             }
         );
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
-        renderTable(data);
+        renderTartans(data);
     } catch (error) {
         console.error('Error loading tartans:', error);
+        const container = document.getElementById('tartan-list');
+        if (container) {
+            container.innerHTML = `<p class="error">Failed to load tartans. Check console for details.</p>`;
+        }
     }
 }
 
-function renderTable(tartans) {
-    const tbody = document.getElementById('tartan-list');
-    tbody.innerHTML = '';
+// --- Render tartans into the page ---
+function renderTartans(tartans) {
+    const container = document.getElementById('tartan-list');
+    if (!container) return;
+
+    container.innerHTML = '';
 
     tartans.forEach(tartan => {
         const row = document.createElement('tr');
 
-        // Thumbnail
+        // Thumbnail cell
         const thumbCell = document.createElement('td');
         if (tartan.image_url) {
             const img = document.createElement('img');
@@ -39,32 +51,23 @@ function renderTable(tartans) {
         }
         row.appendChild(thumbCell);
 
-        // Text columns
+        // Other fields
         row.innerHTML += `
       <td>${tartan.tartan_name || '—'}</td>
       <td>${tartan.weight || '—'}</td>
-      <td>${tartan.weavers?.name || '—'}</td>
+      <td>${tartan.weavers?.name || 'Unknown'}</td>
       <td>${tartan.range || '—'}</td>
+      <td class="actions">
+        <button><img src="pencil-icon.png" alt="Edit"></button>
+        <button><img src="book-icon.png" alt="Catalogue"></button>
+      </td>
     `;
 
-        // Actions
-        const actionsCell = document.createElement('td');
-        actionsCell.className = 'actions';
-
-        const editBtn = document.createElement('button');
-        editBtn.innerHTML = '<img src="pencil-icon.png" alt="Edit">';
-        actionsCell.appendChild(editBtn);
-
-        const catBtn = document.createElement('button');
-        catBtn.innerHTML = '<img src="book-icon.png" alt="Catalogue">';
-        actionsCell.appendChild(catBtn);
-
-        row.appendChild(actionsCell);
-        tbody.appendChild(row);
+        container.appendChild(row);
     });
 }
 
-// Lightbox
+// --- Lightbox logic ---
 function openLightbox(url) {
     const modal = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
@@ -72,8 +75,31 @@ function openLightbox(url) {
     modal.style.display = 'block';
 }
 
-document.querySelector('#lightbox .close').onclick = () => {
-    document.getElementById('lightbox').style.display = 'none';
-};
+// Close lightbox when clicking the X
+document.addEventListener('DOMContentLoaded', () => {
+    loadTartans();
 
-document.addEventListener('DOMContentLoaded', loadTartans);
+    const closeBtn = document.querySelector('#lightbox .close');
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            document.getElementById('lightbox').style.display = 'none';
+        };
+    }
+
+    // Optional: close when clicking outside the image
+    const modal = document.getElementById('lightbox');
+    if (modal) {
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+
+    // Optional: close with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+    });
+});
