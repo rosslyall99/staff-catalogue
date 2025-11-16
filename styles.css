@@ -33,6 +33,85 @@ td {
 
 .actions button {
     background: none;
+
+    body {
+        font-family: sans-serif;
+        margin: 0;
+        background: #f9f9f9;
+        color: #333;
+    }
+
+    header {
+        background: #2c3e50;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem auto;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 0.5rem;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .thumbnail {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin: 0 4px;
+    }
+
+    .actions img {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Lightbox */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal img {
+        display: block;
+        max-width: 80%;
+        margin: 5% auto;
+        border-radius: 6px;
+    }
+
+    .modal .close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-size: 2rem;
+        color: white;
+        cursor: pointer;
+    }
+
     border: none;
     cursor: pointer;
     margin: 0 5px;

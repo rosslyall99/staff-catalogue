@@ -34,32 +34,29 @@ function renderTable(tartans) {
             img.className = 'thumbnail';
             img.onclick = () => openLightbox(tartan.image_url);
             thumbCell.appendChild(img);
+        } else {
+            thumbCell.textContent = '—';
         }
         row.appendChild(thumbCell);
 
-        // Tartan name
-        row.innerHTML += `<td>${tartan.tartan_name}</td>`;
-        // Weight
-        row.innerHTML += `<td>${tartan.weight || '—'}</td>`;
-        // Weaver
-        row.innerHTML += `<td>${tartan.weavers?.name || 'Unknown'}</td>`;
-        // Range
-        row.innerHTML += `<td>${tartan.range || '—'}</td>`;
+        // Text columns
+        row.innerHTML += `
+      <td>${tartan.tartan_name || '—'}</td>
+      <td>${tartan.weight || '—'}</td>
+      <td>${tartan.weavers?.name || '—'}</td>
+      <td>${tartan.range || '—'}</td>
+    `;
 
         // Actions
         const actionsCell = document.createElement('td');
         actionsCell.className = 'actions';
 
-        // Edit button
         const editBtn = document.createElement('button');
         editBtn.innerHTML = '<img src="pencil-icon.png" alt="Edit">';
-        editBtn.onclick = () => openEditModal(tartan);
         actionsCell.appendChild(editBtn);
 
-        // Catalogue button
         const catBtn = document.createElement('button');
         catBtn.innerHTML = '<img src="book-icon.png" alt="Catalogue">';
-        catBtn.onclick = () => openCatalogueModal(tartan);
         actionsCell.appendChild(catBtn);
 
         row.appendChild(actionsCell);
@@ -67,35 +64,16 @@ function renderTable(tartans) {
     });
 }
 
-// --- Lightbox ---
+// Lightbox
 function openLightbox(url) {
     const modal = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
     img.src = url;
     modal.style.display = 'block';
 }
-document.querySelectorAll('.modal .close').forEach(el => {
-    el.onclick = () => el.parentElement.parentElement.style.display = 'none';
-});
 
-// --- Edit Modal ---
-function openEditModal(tartan) {
-    document.getElementById('edit-tartan-name').value = tartan.tartan_name;
-    document.getElementById('edit-weight').value = tartan.weight;
-    document.getElementById('edit-image-url').value = tartan.image_url;
-    document.getElementById('edit-range').value = tartan.range;
-    document.getElementById('edit-modal').style.display = 'block';
-}
-
-// --- Catalogue Modal ---
-function openCatalogueModal(tartan) {
-    const details = document.getElementById('catalogue-details');
-    details.innerHTML = `
-    <p><strong>Weaver:</strong> ${tartan.weavers?.name || 'Unknown'}</p>
-    <p><strong>Website:</strong> ${tartan.weavers?.website || '—'}</p>
-    <p><strong>Prices:</strong> ${JSON.stringify(tartan.prices || {}, null, 2)}</p>
-  `;
-    document.getElementById('catalogue-modal').style.display = 'block';
-}
+document.querySelector('#lightbox .close').onclick = () => {
+    document.getElementById('lightbox').style.display = 'none';
+};
 
 document.addEventListener('DOMContentLoaded', loadTartans);

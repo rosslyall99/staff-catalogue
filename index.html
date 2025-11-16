@@ -2,15 +2,15 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tartan Catalogue</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tartan Spreadsheet</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
     <header>
-        <h1>Tartan Catalogue</h1>
+        <h1>Tartan Spreadsheet View</h1>
     </header>
 
     <main>
@@ -18,7 +18,7 @@
             <thead>
                 <tr>
                     <th>Thumbnail</th>
-                    <th>Tartan Name</th>
+                    <th>Name</th>
                     <th>Weight</th>
                     <th>Weaver</th>
                     <th>Range</th>
@@ -34,31 +34,7 @@
     <!-- Lightbox -->
     <div id="lightbox" class="modal">
         <span class="close">&times;</span>
-        <img id="lightbox-img" src="" alt="Large tartan image">
-    </div>
-
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Edit Tartan</h2>
-            <form id="edit-form">
-                <label>Tartan Name: <input type="text" id="edit-tartan-name"></label>
-                <label>Weight: <input type="text" id="edit-weight"></label>
-                <label>Image URL: <input type="text" id="edit-image-url"></label>
-                <label>Range: <input type="text" id="edit-range"></label>
-                <button type="submit">Save</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Catalogue Modal -->
-    <div id="catalogue-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Catalogue Info</h2>
-            <div id="catalogue-details"></div>
-        </div>
+        <img id="lightbox-img" src="" alt="Tartan preview" />
     </div>
 
     <script src="script.js"></script>
