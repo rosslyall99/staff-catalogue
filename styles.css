@@ -6,6 +6,9 @@ body {
 }
 
 header {
+    box-sizing: border-box;
+    width: 100%;
+    overflow-x: hidden;
     background: #2c3e50;
     color: white;
     padding: 1rem;
@@ -13,30 +16,45 @@ header {
 }
 
 #search-container {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
     width: 100%;
     padding: 1rem;
     background: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1rem;
 }
 
 #search-input {
     width: 100%;
-    padding: 0.6rem;
-    font-size: 1rem;
+    padding: 1rem;
+    font-size: 2rem;
+    border: 2px solid #ccc;
+}
+
+main {
+    padding: 1rem;
+    padding-top: 0rem;
+}
+
+.table-wrapper {
+    overflow: hidden;
+    /* clips the table inside the rounded edges */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border: 1px solid #ccc;
-    border-radius: 6px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 1rem auto;
+    /* keeps single grid lines */
     background: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-th,
+th {
+    border: 1px solid #ccc;
+    background-color: #ccc;
+}
+
 td {
     border: 1px solid #ccc;
     padding: 0.1rem;
