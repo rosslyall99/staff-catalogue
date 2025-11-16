@@ -169,6 +169,8 @@ document.getElementById('delete-btn')?.addEventListener('click', async () => {
     if (!confirm('Delete this tartan?')) return;
 
     try {
+        console.log("Deleting tartan", currentTartanId);
+
         const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
             method: 'DELETE',
             headers: {
@@ -176,9 +178,12 @@ document.getElementById('delete-btn')?.addEventListener('click', async () => {
                 Authorization: `Bearer ${SUPABASE_KEY}`
             }
         });
+
         if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+        console.log("Delete result", res.status);
+
         closeEditModal();
-        loadTartans();
+        loadTartans(); // refresh table
     } catch (err) {
         console.error('Error deleting tartan:', err);
     }
