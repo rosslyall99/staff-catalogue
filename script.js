@@ -73,7 +73,11 @@ function renderTartans(tartans) {
         actionsCell.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
-        catBtn.innerHTML = '<img src="book-icon.png" alt="Catalogue">';
+        catBtn.title = "Catalogue";
+        catBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#333">
+        <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
+      </svg>`;
         catBtn.addEventListener('click', () => alert('Catalogue modal not wired yet'));
         actionsCell.appendChild(catBtn);
 
@@ -101,6 +105,7 @@ function closeLightbox() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     img.src = '';
+    document.activeElement.blur(); // clear focus to avoid aria-hidden warning
 }
 
 /* Edit modal */
@@ -111,18 +116,21 @@ function openEditModal(tartan) {
     document.getElementById('edit-range').value = tartan.range || '';
     document.getElementById('edit-image').value = tartan.image_url || '';
     document.getElementById('edit-weaver').value = tartan.weavers?.name || 'Unknown';
-    document.getElementById('edit-modal').classList.add('open');
-    document.getElementById('edit-modal').setAttribute('aria-hidden', 'false');
+    const modal = document.getElementById('edit-modal');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
 }
 
 function closeEditModal() {
-    document.getElementById('edit-modal').classList.remove('open');
-    document.getElementById('edit-modal').setAttribute('aria-hidden', 'true');
+    const modal = document.getElementById('edit-modal');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.activeElement.blur(); // clear focus
     currentTartanId = null;
 }
 
 // Save changes
-document.getElementById('edit-form').addEventListener('submit', async (e) => {
+document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentTartanId) return;
 
