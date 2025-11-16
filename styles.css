@@ -51,20 +51,21 @@ td {
 }
 
 /* Lightbox overlay: center content vertically & horizontally */
+/* Hidden by default */
 .modal {
     display: none;
     position: fixed;
     z-index: 1000;
     inset: 0;
-    /* top/right/bottom/left: 0 */
     background: rgba(0, 0, 0, 0.85);
-
-    display: flex;
     align-items: center;
-    /* vertical centering */
     justify-content: center;
-    /* horizontal centering */
     padding: 2rem;
+}
+
+/* Visible when opened */
+.modal.open {
+    display: flex;
 }
 
 /* Close button */

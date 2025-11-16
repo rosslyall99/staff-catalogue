@@ -36,7 +36,6 @@ function renderTartans(tartans) {
             img.src = tartan.image_url;
             img.className = 'thumbnail';
             img.addEventListener('click', () => {
-                console.log("Thumbnail clicked:", tartan.image_url);
                 openLightbox(tartan.image_url, tartan.tartan_name);
             });
             thumbCell.appendChild(img);
@@ -86,47 +85,44 @@ function renderTartans(tartans) {
     });
 }
 
-// Lightbox
+// Lightbox open/close with class toggle
 function openLightbox(url, name) {
-    console.log("Opening lightbox for:", url);
     const modal = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
     const caption = document.getElementById('lightbox-caption');
 
-    img.src = url;
+    img.src = url || '';
     caption.textContent = name || '';
-    modal.style.display = 'flex'; // flexbox centering
+    modal.classList.add('open');           // show via class
     modal.setAttribute('aria-hidden', 'false');
 }
 
-// Close handlers
+function closeLightbox() {
+    const modal = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+
+    modal.classList.remove('open');        // hide via class
+    modal.setAttribute('aria-hidden', 'true');
+    img.src = '';                          // clear src to avoid spinner
+}
+
+// Wire up close actions + load data
 document.addEventListener('DOMContentLoaded', () => {
     loadTartans();
 
     const closeBtn = document.getElementById('lightbox-close');
     if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            const modal = document.getElementById('lightbox');
-            modal.style.display = 'none';
-            modal.setAttribute('aria-hidden', 'true');
-        });
+        closeBtn.addEventListener('click', closeLightbox);
     }
 
     const modal = document.getElementById('lightbox');
     if (modal) {
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-                modal.setAttribute('aria-hidden', 'true');
-            }
+            if (e.target === modal) closeLightbox();
         });
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            const modal = document.getElementById('lightbox');
-            modal.style.display = 'none';
-            modal.setAttribute('aria-hidden', 'true');
-        }
+        if (e.key === 'Escape') closeLightbox();
     });
 });
