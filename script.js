@@ -144,8 +144,7 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
     try {
         console.log("Saving tartan", currentTartanId, updated);
 
-        // IMPORTANT: replace 'id' with your actual PK column name
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?tartan_id=eq.${currentTartanId}`, {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
             method: 'PATCH',
             headers: {
                 apikey: SUPABASE_KEY,
