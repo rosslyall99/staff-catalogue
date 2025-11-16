@@ -17,6 +17,15 @@
         <input type="text" id="search-input" placeholder="Search tartans..." />
     </div>
 
+    <button id="toggle-filters">Show Filters</button>
+
+    <div id="filters-container" style="display: none;">
+        <select id="filter-clan" data-label="Clan"></select>
+        <select id="filter-weight" data-label="Weight"></select>
+        <select id="filter-weaver" data-label="Weaver"></select>
+        <select id="filter-range" data-label="Range"></select>
+    </div>
+
     <main>
         <div class="table-wrapper">
             <table id="tartan-table">

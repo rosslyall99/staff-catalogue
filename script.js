@@ -19,6 +19,7 @@ async function loadTartans() {
         const data = await response.json();
         allTartans = data;
         renderTartans(allTartans);
+        populateFilters(allTartans);
     } catch (error) {
         console.error('Error loading tartans:', error);
     }
@@ -85,6 +86,82 @@ function renderTartans(tartans) {
         container.appendChild(row);
     });
 }
+
+function populateFilters(data) {
+    const clans = [...new Set(data.map(t => t.clan))];
+    const weights = [...new Set(data.map(t => t.weight))];
+    const weavers = [...new Set(data.map(t => t.weavers?.name))];
+    const ranges = [...new Set(data.map(t => t.range))];
+
+    fillSelect('filter-clan', clans);
+    fillSelect('filter-weight', weights);
+    fillSelect('filter-weaver', weavers);
+    fillSelect('filter-range', ranges);
+}
+
+function fillSelect(id, values) {
+    const select = document.getElementById(id);
+
+    // Clear existing options first
+    select.innerHTML = '';
+
+    // Always add the default "placeholder" option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = select.getAttribute('data-label') || 'Select';
+    select.appendChild(defaultOption);
+
+    // Add distinct values
+    [...new Set(values)].sort().forEach(val => {
+        if (val) {
+            const option = document.createElement('option');
+            option.value = val;
+            option.textContent = val;
+            select.appendChild(option);
+        }
+    });
+}
+// Apply filters + search together
+function applyFilters() {
+    const query = document.getElementById('search-input').value.toLowerCase();
+    const clan = document.getElementById('filter-clan').value;
+    const weight = document.getElementById('filter-weight').value;
+    const weaver = document.getElementById('filter-weaver').value;
+    const range = document.getElementById('filter-range').value;
+
+    // Step 1: apply dropdown filters first
+    let filtered = allTartans.filter(tartan => {
+        const matchesClan = !clan || tartan.clan === clan;
+        const matchesWeight = !weight || tartan.weight === weight;
+        const matchesWeaver = !weaver || tartan.weavers?.name === weaver;
+        const matchesRange = !range || tartan.range === range;
+        return matchesClan && matchesWeight && matchesWeaver && matchesRange;
+    });
+
+    // Step 2: apply search only within filtered results
+    if (query) {
+        filtered = filtered.filter(tartan =>
+            (tartan.tartan_name || '').toLowerCase().includes(query) ||
+            (tartan.weavers?.name || '').toLowerCase().includes(query)
+        );
+    }
+
+    renderTartans(filtered);
+}
+
+// Toggle filters visibility
+document.getElementById('toggle-filters')?.addEventListener('click', () => {
+    const container = document.getElementById('filters-container');
+    container.style.display = container.style.display === 'none' ? 'flex' : 'none';
+});
+
+// Wire up search + filters
+['search-input', 'filter-clan', 'filter-weight', 'filter-weaver', 'filter-range'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', applyFilters);
+});
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', loadTartans);
 
 /* Lightbox */
 function openLightbox(url, name) {
