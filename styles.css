@@ -162,3 +162,23 @@ td {
     background: #27ae60;
     color: white;
 }
+
+/* Catalogue inputs styled identically to edit modal */
+#catalogue-list label {
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+#catalogue-list input {
+    width: 100%;
+    padding: 0.4rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#catalogue-list input:disabled {
+    background: #eee;
+    color: #666;
+    cursor: not-allowed;
+}

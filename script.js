@@ -75,7 +75,7 @@ function renderTartans(tartans) {
         const catBtn = document.createElement('button');
         catBtn.title = "Catalogue";
         catBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="22" height="22">`;
-        catBtn.addEventListener('click', () => alert('Catalogue modal not wired yet'));
+        catBtn.addEventListener('click', () => openCatalogueModal(tartan));
         actionsCell.appendChild(catBtn);
 
         row.appendChild(actionsCell);
@@ -192,6 +192,65 @@ document.getElementById('delete-btn')?.addEventListener('click', async () => {
 // Cancel
 document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
 
+function openCatalogueModal(tartan) {
+    const modal = document.getElementById('catalogue-modal');
+    const title = document.getElementById('catalogue-title');
+    const nameInput = document.getElementById('catalogue-name');
+    const list = document.getElementById('catalogue-list');
+
+    title.textContent = 'Catalogue';
+    nameInput.value = tartan.tartan_name || '';
+    list.innerHTML = '';
+
+    // Parse prices JSONB safely
+    let prices = {};
+    try {
+        prices = typeof tartan.prices === 'string'
+            ? JSON.parse(tartan.prices)
+            : (tartan.prices || {});
+    } catch (err) {
+        console.error('Error parsing prices JSON', err);
+        prices = {};
+    }
+
+    // For each product, create a label + full-width disabled input
+    Object.entries(prices).forEach(([product, price]) => {
+        const label = document.createElement('label');
+        label.innerHTML = `${product}:<br><input type="text" value="£${price}" disabled />`;
+        list.appendChild(label);
+        list.appendChild(document.createElement('br'));
+    });
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+// Close handlers (match your existing modal behavior)
+document.getElementById('catalogue-close')?.addEventListener('click', () => {
+    const modal = document.getElementById('catalogue-modal');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+});
+
+// Optional: overlay click + Escape support
+document.addEventListener('DOMContentLoaded', () => {
+    const catalogueModal = document.getElementById('catalogue-modal');
+    catalogueModal?.addEventListener('click', (e) => {
+        if (e.target === catalogueModal) {
+            catalogueModal.classList.remove('open');
+            catalogueModal.setAttribute('aria-hidden', 'true');
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const catalogueModal = document.getElementById('catalogue-modal');
+            catalogueModal?.classList.remove('open');
+            catalogueModal?.setAttribute('aria-hidden', 'true');
+        }
+    });
+});
+
 /* Wire up overlay close + initial load */
 document.addEventListener('DOMContentLoaded', () => {
     loadTartans();
@@ -217,5 +276,11 @@ document.addEventListener('DOMContentLoaded', () => {
             closeLightbox();
             closeEditModal();
         }
+    });
+
+    document.getElementById('catalogue-close')?.addEventListener('click', () => {
+        const modal = document.getElementById('catalogue-modal');
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
     });
 });
