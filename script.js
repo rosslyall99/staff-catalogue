@@ -1,6 +1,6 @@
 // ===== CONFIG =====
 const SUPABASE_URL = 'https://obibnblucftyzbtzequj.supabase.co';
-const SUPABASE_KEY = 'REPLACE_WITH_YOUR_ANON_KEY'; // staff-only page: okay for now if RLS limits data
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iaWJuYmx1Y2Z0eXpidHplcXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxMjE2MDcsImV4cCI6MjA3ODY5NzYwN30.f60ZZIQh0lntvTACdKU0HuLUHgtsbQbwq_csFdeQcRc'; // staff-only page: okay for now if RLS limits data
 
 // Base select for grid
 const GRID_SELECT = [
