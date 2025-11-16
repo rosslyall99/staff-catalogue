@@ -2,32 +2,42 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Tartan Spreadsheet View</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tartan Spreadsheet</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-    <h1>Tartan Spreadsheet View</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Thumbnail</th>
-                <th>Name</th>
-                <th>Weight</th>
-                <th>Weaver</th>
-                <th>Range</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="tartan-list"></tbody>
-    </table>
+    <header>
+        <h1>Tartan Spreadsheet View</h1>
+    </header>
 
-    <!-- Lightbox Modal -->
+    <main>
+        <table id="tartan-table">
+            <thead>
+                <tr>
+                    <th>Thumbnail</th>
+                    <th>Name</th>
+                    <th>Weight</th>
+                    <th>Weaver</th>
+                    <th>Range</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tartan-list">
+                <!-- Rows injected by script.js -->
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Lightbox -->
     <div id="lightbox" class="modal" aria-hidden="true">
-        <span id="lightbox-close">&times;</span>
-        <img id="lightbox-img" alt="">
-        <div id="lightbox-caption"></div>
+        <span id="lightbox-close" class="close" aria-label="Close">&times;</span>
+        <figure class="modal-content">
+            <img id="lightbox-img" src="" alt="Tartan preview" />
+            <figcaption id="lightbox-caption"></figcaption>
+        </figure>
     </div>
 
     <!-- Edit Modal -->
@@ -35,11 +45,26 @@
         <div class="modal-box">
             <h2>Edit Tartan</h2>
             <form id="edit-form">
-                <label>Name <input id="edit-name"></label>
-                <label>Weight <input id="edit-weight"></label>
-                <label>Range <input id="edit-range"></label>
-                <label>Image URL <input id="edit-image"></label>
-                <label>Weaver <input id="edit-weaver" disabled></label>
+                <label>Name:<br>
+                    <input type="text" id="edit-name" />
+                </label><br>
+
+                <label>Weight:<br>
+                    <input type="text" id="edit-weight" />
+                </label><br>
+
+                <label>Range:<br>
+                    <input type="text" id="edit-range" />
+                </label><br>
+
+                <label>Image URL:<br>
+                    <input type="text" id="edit-image" />
+                </label><br>
+
+                <label>Weaver:<br>
+                    <input type="text" id="edit-weaver" disabled />
+                </label><br>
+
                 <div class="modal-actions">
                     <button type="submit">Save</button>
                     <button type="button" id="delete-btn">Delete</button>
@@ -49,18 +74,7 @@
         </div>
     </div>
 
-    <!-- Catalogue Modal -->
-    <div id="catalogue-modal" class="modal" aria-hidden="true">
-        <div class="modal-box">
-            <h2>Catalogue</h2>
-            <div id="catalogue-content"></div>
-            <div class="modal-actions">
-                <button type="button" id="catalogue-close">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js?v=7.0"></script>
+    <script src="script.js?v=6.1"></script>
 </body>
 
 </html>
