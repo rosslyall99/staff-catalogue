@@ -26,7 +26,7 @@ function renderTartans(tartans) {
     tartans.forEach(tartan => {
         const row = document.createElement('tr');
 
-        // Thumbnail cell
+        // Thumbnail
         const thumbCell = document.createElement('td');
         if (tartan.image_url) {
             const img = document.createElement('img');
@@ -49,8 +49,12 @@ function renderTartans(tartans) {
       <td>${tartan.weavers?.name || 'Unknown'}</td>
       <td>${tartan.range || '—'}</td>
       <td class="actions">
-        <button><img src="pencil-icon.png" alt="Edit"></button>
-        <button><img src="book-icon.png" alt="Catalogue"></button>
+        <button onclick="alert('Edit modal not wired yet')">
+          <img src="pencil-icon.png" alt="Edit">
+        </button>
+        <button onclick="alert('Catalogue modal not wired yet')">
+          <img src="book-icon.png" alt="Catalogue">
+        </button>
       </td>
     `;
 
@@ -58,7 +62,7 @@ function renderTartans(tartans) {
     });
 }
 
-// --- Lightbox logic ---
+// Lightbox
 function openLightbox(url) {
     console.log("Opening lightbox for:", url);
     const modal = document.getElementById('lightbox');
@@ -67,7 +71,7 @@ function openLightbox(url) {
     modal.style.display = 'block';
 }
 
-// --- Close handlers ---
+// Close handlers
 document.addEventListener('DOMContentLoaded', () => {
     loadTartans();
 
