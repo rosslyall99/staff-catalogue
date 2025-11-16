@@ -64,6 +64,7 @@ function openLightbox(url) {
     const img = document.getElementById('lightbox-img');
     img.src = url;
     modal.style.display = 'block';
+    console.log("Opening lightbox for:", url);
 }
 
 // --- Close handlers ---
