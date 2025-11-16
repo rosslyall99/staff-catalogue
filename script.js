@@ -66,16 +66,13 @@ function renderTartans(tartans) {
 
         const editBtn = document.createElement('button');
         editBtn.title = 'Edit';
-        editBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="#333"/></svg>';
+        editBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="22" height="22">`;
         editBtn.addEventListener('click', () => openEditModal(tartan));
         actionsCell.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
         catBtn.title = 'Catalogue';
-        catBtn.innerHTML = `
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="#333">
-        <path d="M3 4c0-1.1.9-2 2-2h6v18H5c-1.1 0-2-.9-2-2V4zm16-2h-6v18h6c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-      </svg>`;
+        catBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="22" height="22">`;
         catBtn.addEventListener('click', () => openCatalogueModal(tartan));
         actionsCell.appendChild(catBtn);
 
@@ -183,18 +180,17 @@ function openCatalogueModal(tartan) {
     const title = document.getElementById('catalogue-title');
     const list = document.getElementById('catalogue-list');
 
-    title.textContent = `Catalogue: ${tartan.tartan_name || ''}`;
+    title.textContent = `Catalogue: ${tartan.tartan_name}`;
     list.innerHTML = '';
 
     let prices = {};
     try {
-        prices = typeof tartan.prices === 'string' ? JSON.parse(tartan.prices) : (tartan.prices || {});
+        prices = typeof tartan.prices === 'string' ? JSON.parse(tartan.prices) : tartan.prices;
     } catch (err) {
-        console.error('Error parsing prices JSON', err);
-        prices = {};
+        console.error("Error parsing prices JSON", err);
     }
 
-    Object.entries(prices).forEach(([product, price]) => {
+    Object.entries(prices || {}).forEach(([product, price]) => {
         const item = document.createElement('div');
         item.className = 'catalogue-item';
         item.innerHTML = `

@@ -107,24 +107,25 @@ td {
 }
 
 /* Catalogue styled like form fields for visual harmony */
-.catalogue-group {
+#catalogue-list {
     margin-top: 0.5rem;
 }
 
-.catalogue-item {
-    padding: 0.5rem 0.6rem;
+#catalogue-list .catalogue-item {
+    display: block;
+    margin: 0.4rem 0;
+    padding: 0.4rem 0.6rem;
     background: #f8f8f8;
     border-radius: 4px;
-    margin: 0.4rem 0;
 }
 
-.catalogue-item .label {
+#catalogue-list .label {
     font-weight: bold;
     display: block;
     margin-bottom: 0.2rem;
 }
 
-.catalogue-item .value {
+#catalogue-list .value {
     color: #333;
 }
 
