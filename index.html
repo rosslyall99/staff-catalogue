@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tartan Catalogue</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <main class="container">
+        <h1>Tartan Catalogue (Staff)</h1>
+
+        <div class="controls">
+            <label for="search">Search</label>
+            <input id="search" type="text" placeholder="Type to search by name, weaver, range…" />
+        </div>
+
+        <table class="grid">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Weaver</th>
+                    <th>Range</th>
+                    <th>Weight</th>
+                    <th>Thumbnail</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="tartanTable"></tbody>
+        </table>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-card">
+            <button id="closeModal" class="close">×</button>
+            <h2 id="modalName"></h2>
+            <img id="modalImage" alt="" />
+            <div id="modalWeaver"></div>
+            <div id="modalPrices"></div>
+            <p id="modalDescription"></p>
+            <a id="modalProductUrl" href="#" target="_blank" rel="noopener">Open product page</a>
+        </div>
+        <div class="overlay"></div>
+    </div>
+
+    <script src="script.js" type="module"></script>
+</body>
+
+</html>
