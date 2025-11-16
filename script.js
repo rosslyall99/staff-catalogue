@@ -180,17 +180,18 @@ function openCatalogueModal(tartan) {
     const title = document.getElementById('catalogue-title');
     const list = document.getElementById('catalogue-list');
 
-    title.textContent = `Catalogue: ${tartan.tartan_name}`;
+    title.textContent = `Catalogue: ${tartan.tartan_name || ''}`;
     list.innerHTML = '';
 
     let prices = {};
     try {
-        prices = typeof tartan.prices === 'string' ? JSON.parse(tartan.prices) : tartan.prices;
+        prices = typeof tartan.prices === 'string' ? JSON.parse(tartan.prices) : (tartan.prices || {});
     } catch (err) {
-        console.error("Error parsing prices JSON", err);
+        console.error('Error parsing prices JSON', err);
+        prices = {};
     }
 
-    Object.entries(prices || {}).forEach(([product, price]) => {
+    Object.entries(prices).forEach(([product, price]) => {
         const item = document.createElement('div');
         item.className = 'catalogue-item';
         item.innerHTML = `
