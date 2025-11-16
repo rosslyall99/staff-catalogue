@@ -57,7 +57,8 @@ function renderTartans(tartans) {
 
         // Weaver
         const weaverCell = document.createElement('td');
-        weaverCell.textContent = (tartan.weavers && tartan.weavers.name) ? tartan.weavers.name : 'Unknown';
+        weaverCell.textContent =
+            (tartan.weavers && tartan.weavers.name) ? tartan.weavers.name : 'Unknown';
         row.appendChild(weaverCell);
 
         // Range
@@ -95,6 +96,7 @@ function openLightbox(url, name) {
     img.src = url;
     caption.textContent = name || '';
     modal.style.display = 'flex'; // flexbox centering
+    modal.setAttribute('aria-hidden', 'false');
 }
 
 // Close handlers
@@ -104,7 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('lightbox-close');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
-            document.getElementById('lightbox').style.display = 'none';
+            const modal = document.getElementById('lightbox');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
         });
     }
 
@@ -113,13 +117,16 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
             }
         });
     }
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            document.getElementById('lightbox').style.display = 'none';
+            const modal = document.getElementById('lightbox');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
         }
     });
 });
