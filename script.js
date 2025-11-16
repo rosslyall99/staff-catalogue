@@ -53,6 +53,11 @@ function renderTartans(tartans) {
 
         container.appendChild(row);
     });
+
+    img.addEventListener('click', () => {
+        console.log("Thumbnail clicked:", tartan.image_url);
+        openLightbox(tartan.image_url);
+    });
 }
 
 // --- Lightbox logic ---
@@ -88,10 +93,4 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('lightbox').style.display = 'none';
         }
     });
-
-    img.addEventListener('click', () => {
-        console.log("Thumbnail clicked:", tartan.image_url);
-        openLightbox(tartan.image_url);
-    });
-
 });
