@@ -3,25 +3,28 @@ const SUPABASE_KEY = 'sb_publishable_xMBkFtpKK33NGoiJ9-7nAQ_P1D2Ai4g';
 
 let currentTartanId = null;
 
-/* Load + render */
 async function loadTartans() {
     try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?select=*,weavers(*)`, {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers(*)`,
+            {
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                }
             }
-        });
-        const tartans = await res.json();
-        renderTartans(tartans);
-    } catch (err) {
-        console.error('Error loading tartans:', err);
+        );
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        renderTartans(data);
+    } catch (error) {
+        console.error('Error loading tartans:', error);
     }
 }
 
 function renderTartans(tartans) {
-    const tbody = document.getElementById('tartan-list');
-    tbody.innerHTML = '';
+    const container = document.getElementById('tartan-list');
+    container.innerHTML = '';
 
     tartans.forEach(tartan => {
         const row = document.createElement('tr');
@@ -32,7 +35,6 @@ function renderTartans(tartans) {
             const img = document.createElement('img');
             img.src = tartan.image_url;
             img.className = 'thumbnail';
-            img.alt = tartan.tartan_name || 'Tartan image';
             img.addEventListener('click', () => openLightbox(tartan.image_url, tartan.tartan_name));
             thumbCell.appendChild(img);
         } else {
@@ -52,7 +54,7 @@ function renderTartans(tartans) {
 
         // Weaver
         const weaverCell = document.createElement('td');
-        weaverCell.textContent = tartan.weavers?.name || '—';
+        weaverCell.textContent = tartan.weavers?.name || 'Unknown';
         row.appendChild(weaverCell);
 
         // Range
@@ -65,37 +67,43 @@ function renderTartans(tartans) {
         actionsCell.className = 'actions';
 
         const editBtn = document.createElement('button');
-        editBtn.title = 'Edit';
+        editBtn.title = "Edit"; // tooltip
         editBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="22" height="22">`;
         editBtn.addEventListener('click', () => openEditModal(tartan));
         actionsCell.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
-        catBtn.title = 'Catalogue';
+        catBtn.title = "Catalogue";
         catBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="22" height="22">`;
-        catBtn.addEventListener('click', () => openCatalogueModal(tartan));
+        catBtn.addEventListener('click', () => alert('Catalogue modal not wired yet'));
         actionsCell.appendChild(catBtn);
 
         row.appendChild(actionsCell);
-        tbody.appendChild(row);
+
+        container.appendChild(row);
     });
 }
 
 /* Lightbox */
 function openLightbox(url, name) {
-    document.getElementById('lightbox-img').src = url || '';
-    document.getElementById('lightbox-caption').textContent = name || '';
     const modal = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    const caption = document.getElementById('lightbox-caption');
+
+    img.src = url || '';
+    caption.textContent = name || '';
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
 }
 
-document.getElementById('lightbox-close')?.addEventListener('click', () => {
+function closeLightbox() {
     const modal = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
-    document.getElementById('lightbox-img').src = '';
-});
+    img.src = '';
+    document.activeElement.blur(); // clear focus to avoid aria-hidden warning
+}
 
 /* Edit modal */
 function openEditModal(tartan) {
@@ -104,7 +112,7 @@ function openEditModal(tartan) {
     document.getElementById('edit-weight').value = tartan.weight || '';
     document.getElementById('edit-range').value = tartan.range || '';
     document.getElementById('edit-image').value = tartan.image_url || '';
-    document.getElementById('edit-weaver').value = tartan.weavers?.name || '';
+    document.getElementById('edit-weaver').value = tartan.weavers?.name || 'Unknown';
     const modal = document.getElementById('edit-modal');
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
@@ -114,12 +122,12 @@ function closeEditModal() {
     const modal = document.getElementById('edit-modal');
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
+    document.activeElement.blur(); // clear focus
     currentTartanId = null;
 }
 
-document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
-
-document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
+// Save changes
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentTartanId) return;
 
@@ -131,6 +139,8 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
     };
 
     try {
+        console.log("Saving tartan", currentTartanId, updated);
+
         const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
             method: 'PATCH',
             headers: {
@@ -144,19 +154,23 @@ document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
 
         const result = await res.json();
         console.log("PATCH result", res.status, result);
+
         if (!res.ok) throw new Error(`Save failed: ${res.status}`);
         closeEditModal();
-        loadTartans();
+        loadTartans(); // refresh table
     } catch (err) {
         console.error('Error saving tartan:', err);
     }
 });
 
+// Delete record
 document.getElementById('delete-btn')?.addEventListener('click', async () => {
     if (!currentTartanId) return;
     if (!confirm('Delete this tartan?')) return;
 
     try {
+        console.log("Deleting tartan", currentTartanId);
+
         const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
             method: 'DELETE',
             headers: {
@@ -165,51 +179,43 @@ document.getElementById('delete-btn')?.addEventListener('click', async () => {
             }
         });
 
-        console.log("Delete result", res.status);
         if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+        console.log("Delete result", res.status);
+
         closeEditModal();
-        loadTartans();
+        loadTartans(); // refresh table
     } catch (err) {
         console.error('Error deleting tartan:', err);
     }
 });
 
-/* Catalogue modal (styled to match edit modal) */
-function openCatalogueModal(tartan) {
-    const modal = document.getElementById('catalogue-modal');
-    const title = document.getElementById('catalogue-title');
-    const list = document.getElementById('catalogue-list');
+// Cancel
+document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
 
-    title.textContent = `Catalogue: ${tartan.tartan_name || ''}`;
-    list.innerHTML = '';
+/* Wire up overlay close + initial load */
+document.addEventListener('DOMContentLoaded', () => {
+    loadTartans();
 
-    let prices = {};
-    try {
-        prices = typeof tartan.prices === 'string' ? JSON.parse(tartan.prices) : (tartan.prices || {});
-    } catch (err) {
-        console.error('Error parsing prices JSON', err);
-        prices = {};
+    document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
+
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
     }
 
-    Object.entries(prices).forEach(([product, price]) => {
-        const item = document.createElement('div');
-        item.className = 'catalogue-item';
-        item.innerHTML = `
-      <span class="label">${product}</span>
-      <span class="value">£${price}</span>
-    `;
-        list.appendChild(item);
+    const editModal = document.getElementById('edit-modal');
+    if (editModal) {
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) closeEditModal();
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+            closeEditModal();
+        }
     });
-
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-}
-
-document.getElementById('catalogue-close')?.addEventListener('click', () => {
-    const modal = document.getElementById('catalogue-modal');
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
 });
-
-/* Init */
-loadTartans();
