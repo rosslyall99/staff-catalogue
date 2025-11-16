@@ -12,6 +12,9 @@ async function loadTartans() {
                 }
             }
         );
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const data = await response.json();
         renderTartans(data);
     } catch (error) {
@@ -42,21 +45,41 @@ function renderTartans(tartans) {
         }
         row.appendChild(thumbCell);
 
-        // Other fields
-        row.innerHTML += `
-      <td>${tartan.tartan_name || '—'}</td>
-      <td>${tartan.weight || '—'}</td>
-      <td>${tartan.weavers?.name || 'Unknown'}</td>
-      <td>${tartan.range || '—'}</td>
-      <td class="actions">
-        <button onclick="alert('Edit modal not wired yet')">
-          <img src="pencil-icon.png" alt="Edit">
-        </button>
-        <button onclick="alert('Catalogue modal not wired yet')">
-          <img src="book-icon.png" alt="Catalogue">
-        </button>
-      </td>
-    `;
+        // Name
+        const nameCell = document.createElement('td');
+        nameCell.textContent = tartan.tartan_name || '—';
+        row.appendChild(nameCell);
+
+        // Weight
+        const weightCell = document.createElement('td');
+        weightCell.textContent = tartan.weight || '—';
+        row.appendChild(weightCell);
+
+        // Weaver
+        const weaverCell = document.createElement('td');
+        weaverCell.textContent = (tartan.weavers && tartan.weavers.name) ? tartan.weavers.name : 'Unknown';
+        row.appendChild(weaverCell);
+
+        // Range
+        const rangeCell = document.createElement('td');
+        rangeCell.textContent = tartan.range || '—';
+        row.appendChild(rangeCell);
+
+        // Actions
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = '<img src="pencil-icon.png" alt="Edit">';
+        editBtn.addEventListener('click', () => alert('Edit modal not wired yet'));
+        actionsCell.appendChild(editBtn);
+
+        const catBtn = document.createElement('button');
+        catBtn.innerHTML = '<img src="book-icon.png" alt="Catalogue">';
+        catBtn.addEventListener('click', () => alert('Catalogue modal not wired yet'));
+        actionsCell.appendChild(catBtn);
+
+        row.appendChild(actionsCell);
 
         container.appendChild(row);
     });
