@@ -32,7 +32,10 @@ function renderTartans(tartans) {
             const img = document.createElement('img');
             img.src = tartan.image_url;
             img.className = 'thumbnail';
-            img.addEventListener('click', () => openLightbox(tartan.image_url));
+            img.addEventListener('click', () => {
+                console.log("Thumbnail clicked:", tartan.image_url);
+                openLightbox(tartan.image_url);
+            });
             thumbCell.appendChild(img);
         } else {
             thumbCell.textContent = '—';
@@ -52,11 +55,6 @@ function renderTartans(tartans) {
     `;
 
         container.appendChild(row);
-    });
-
-    img.addEventListener('click', () => {
-        console.log("Thumbnail clicked:", tartan.image_url);
-        openLightbox(tartan.image_url);
     });
 }
 
