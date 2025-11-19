@@ -1,212 +1,287 @@
 const SUPABASE_URL = 'https://obibnblucftyzbtzequj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_xMBkFtpKK33NGoiJ9-7nAQ_P1D2Ai4g';
 
+let itemsPerPage = 10;
+let currentPage = 1;
+let totalPages = 1;
 let currentTartanId = null;
-let allTartans = []; // store full list for filtering
 
-async function loadTartans() {
+const activeFilters = { query: '', clan: '', weight: '', weaver: '', range: '' };
+
+/* =========================
+   Build query URL (inner join + or clause)
+   ========================= */
+function buildTartansUrl() {
+    let url = `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers!inner(*)&order=tartan_name.asc`;
+
+    if (activeFilters.clan) url += `&clan=eq.${encodeURIComponent(activeFilters.clan)}`;
+    if (activeFilters.weight) url += `&weight=eq.${encodeURIComponent(activeFilters.weight)}`;
+    if (activeFilters.range) url += `&range=eq.${encodeURIComponent(activeFilters.range)}`;
+    if (activeFilters.weaver) url += `&weavers.name=eq.${encodeURIComponent(activeFilters.weaver)}`;
+
+    if (activeFilters.query) {
+        const q = activeFilters.query.replace(/[^\w\s-]/gi, '').toLowerCase();
+        // Option A: fully encode
+        const rawClause = `(tartan_name.ilike.*${q}*)`;
+        url += `&or=${encodeURIComponent(rawClause)}`;
+
+        // Option B: leave raw (works too)
+        // url += `&or=(tartan_name.ilike.*${q}*,weavers.name.ilike.*${q}*)`;
+    }
+
+    return url;
+}
+
+/* =========================
+   Loader with pagination
+   ========================= */
+async function loadTartans(page = 1) {
     try {
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers(*)`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage - 1;
+        const url = buildTartansUrl();
+
+        console.log('[tartans GET]', `${url} [Range ${start}-${end}]`);
+
+        const res = await fetch(url, {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                Prefer: 'count=exact',
+                Range: `${start}-${end}`
             }
-        );
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const data = await response.json();
-        allTartans = data;
-        renderTartans(allTartans);
-        populateFilters(allTartans);
-    } catch (error) {
-        console.error('Error loading tartans:', error);
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        const cr = res.headers.get('Content-Range');
+        const total = cr?.includes('/') ? parseInt(cr.split('/')[1], 10) : data.length;
+
+        totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
+        currentPage = page;
+
+        renderTartans(data);
+        renderPaginationControls();
+        ensureFiltersPopulatedOnce();
+    } catch (err) {
+        console.error('Error loading tartans:', err);
+        document.getElementById('tartan-list').innerHTML = '';
+        document.getElementById('pagination-controls').innerHTML = '';
     }
 }
 
+/* =========================
+   Render table
+   ========================= */
 function renderTartans(tartans) {
-    const container = document.getElementById('tartan-list');
-    container.innerHTML = '';
+    const tbody = document.getElementById('tartan-list');
+    tbody.innerHTML = '';
 
-    tartans.forEach(tartan => {
-        const row = document.createElement('tr');
+    tartans.forEach(t => {
+        const tr = document.createElement('tr');
 
-        // Thumbnail
-        const thumbCell = document.createElement('td');
-        if (tartan.image_url) {
+        const tdThumb = document.createElement('td');
+        if (t.image_url) {
             const img = document.createElement('img');
-            img.src = tartan.image_url;
-            img.className = 'thumbnail';
-            img.addEventListener('click', () => openLightbox(tartan.image_url, tartan.tartan_name));
-            thumbCell.appendChild(img);
-        } else {
-            thumbCell.textContent = '—';
-        }
-        row.appendChild(thumbCell);
+            img.src = t.image_url; img.className = 'thumbnail';
+            img.addEventListener('click', () => openLightbox(t.image_url, t.tartan_name));
+            tdThumb.appendChild(img);
+        } else { tdThumb.textContent = '—'; }
+        tr.appendChild(tdThumb);
 
-        // Name
-        const nameCell = document.createElement('td');
-        nameCell.textContent = tartan.tartan_name || '—';
-        row.appendChild(nameCell);
+        const tdName = document.createElement('td');
+        tdName.textContent = t.tartan_name || '—'; tr.appendChild(tdName);
 
-        // Weight
-        const weightCell = document.createElement('td');
-        weightCell.textContent = tartan.weight || '—';
-        row.appendChild(weightCell);
+        const tdWeight = document.createElement('td');
+        tdWeight.textContent = t.weight || '—'; tr.appendChild(tdWeight);
 
-        // Weaver
-        const weaverCell = document.createElement('td');
-        weaverCell.textContent = tartan.weavers?.name || 'Unknown';
-        row.appendChild(weaverCell);
+        const tdWeaver = document.createElement('td');
+        tdWeaver.textContent = t.weavers?.name || 'Unknown'; tr.appendChild(tdWeaver);
 
-        // Range
-        const rangeCell = document.createElement('td');
-        rangeCell.textContent = tartan.range || '—';
-        row.appendChild(rangeCell);
+        const tdRange = document.createElement('td');
+        tdRange.textContent = t.range || '—'; tr.appendChild(tdRange);
 
-        // Actions
-        const actionsCell = document.createElement('td');
-        actionsCell.className = 'actions';
-
+        const tdActions = document.createElement('td');
+        tdActions.className = 'actions';
         const editBtn = document.createElement('button');
-        editBtn.title = "Edit"; // tooltip
+        editBtn.title = 'Edit';
         editBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="22" height="22">`;
-        editBtn.addEventListener('click', () => openEditModal(tartan));
-        actionsCell.appendChild(editBtn);
+        editBtn.addEventListener('click', () => openEditModal(t));
+        tdActions.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
-        catBtn.title = "Catalogue";
+        catBtn.title = 'Catalogue';
         catBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="22" height="22">`;
-        catBtn.addEventListener('click', () => openCatalogueModal(tartan));
-        actionsCell.appendChild(catBtn);
+        catBtn.addEventListener('click', () => openCatalogueModal(t));
+        tdActions.appendChild(catBtn);
 
-        row.appendChild(actionsCell);
-
-        container.appendChild(row);
+        tr.appendChild(tdActions);
+        tbody.appendChild(tr);
     });
 }
 
-function populateFilters(data) {
-    const clans = [...new Set(data.map(t => t.clan))];
-    const weights = [...new Set(data.map(t => t.weight))];
-    const weavers = [...new Set(data.map(t => t.weavers?.name))];
-    const ranges = [...new Set(data.map(t => t.range))];
+/* =========================
+   Pagination (windowed)
+   ========================= */
+function renderPaginationControls() {
+    const controls = document.getElementById('pagination-controls');
+    controls.innerHTML = '';
 
-    fillSelect('filter-clan', clans);
-    fillSelect('filter-weight', weights);
-    fillSelect('filter-weaver', weavers);
-    fillSelect('filter-range', ranges);
+    const prev = document.createElement('button');
+    prev.textContent = 'Previous';
+    prev.disabled = currentPage === 1;
+    prev.onclick = () => loadTartans(currentPage - 1);
+    controls.appendChild(prev);
+
+    const windowSize = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(windowSize / 2));
+    let endPage = Math.min(totalPages, startPage + windowSize - 1);
+    if (endPage - startPage < windowSize - 1) {
+        startPage = Math.max(1, endPage - windowSize + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.disabled = i === currentPage;
+        btn.onclick = () => loadTartans(i);
+        controls.appendChild(btn);
+    }
+
+    const next = document.createElement('button');
+    next.textContent = 'Next';
+    next.disabled = currentPage === totalPages;
+    next.onclick = () => loadTartans(currentPage + 1);
+    controls.appendChild(next);
+
+    const info = document.createElement('span');
+    info.style.marginLeft = '12px';
+    info.textContent = `Page ${currentPage} of ${totalPages}`;
+    controls.appendChild(info);
+}
+
+/* =========================
+   Filters + search wiring
+   ========================= */
+document.getElementById('toggle-filters')?.addEventListener('click', () => {
+    const container = document.getElementById('filters-container');
+    // Force flex so it shows regardless of prior inline/CSS
+    const nowHidden = container.style.display === 'none' || getComputedStyle(container).display === 'none';
+    container.style.display = nowHidden ? 'flex' : 'none';
+});
+
+document.getElementById('search-input')?.addEventListener('input', (e) => {
+    activeFilters.query = (e.target.value || '').toLowerCase().trim();
+    loadTartans(1);
+});
+
+['filter-clan', 'filter-weight', 'filter-weaver', 'filter-range'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', (e) => {
+        const val = (e.target.value || '').trim();
+        if (id === 'filter-clan') activeFilters.clan = val;
+        if (id === 'filter-weight') activeFilters.weight = val;
+        if (id === 'filter-weaver') activeFilters.weaver = val;
+        if (id === 'filter-range') activeFilters.range = val;
+        loadTartans(1);
+    });
+});
+
+/* =========================
+   Populate filter dropdowns (inner join for weavers)
+   ========================= */
+let filtersPopulated = false;
+
+async function ensureFiltersPopulatedOnce() {
+    if (filtersPopulated) return;
+
+    try {
+        const url = `${SUPABASE_URL}/rest/v1/tartans?select=clan,weight,range,weavers!inner(name)&order=clan.asc`;
+        console.log('[filters GET]', url);
+        const res = await fetch(url, {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                Range: '0-999'
+            }
+        });
+        if (!res.ok) throw new Error(`Filters HTTP ${res.status}`);
+        const rows = await res.json();
+
+        const clans = [...new Set(rows.map(r => r.clan).filter(Boolean))].sort();
+        const weights = [...new Set(rows.map(r => r.weight).filter(Boolean))].sort();
+        const ranges = [...new Set(rows.map(r => r.range).filter(Boolean))].sort();
+        const weavers = [...new Set(rows.map(r => r.weavers?.name).filter(Boolean))].sort();
+
+        fillSelect('filter-clan', clans);
+        fillSelect('filter-weight', weights);
+        fillSelect('filter-range', ranges);
+        fillSelect('filter-weaver', weavers);
+
+        filtersPopulated = true;
+    } catch (err) {
+        console.error('Error populating filters:', err);
+    }
 }
 
 function fillSelect(id, values) {
     const select = document.getElementById(id);
-
-    // Clear existing options first
+    if (!select) return;
     select.innerHTML = '';
-
-    // Always add the default "placeholder" option
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = select.getAttribute('data-label') || 'Select';
     select.appendChild(defaultOption);
 
-    // Add distinct values
-    [...new Set(values)].sort().forEach(val => {
-        if (val) {
-            const option = document.createElement('option');
-            option.value = val;
-            option.textContent = val;
-            select.appendChild(option);
-        }
+    values.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        select.appendChild(opt);
     });
 }
-// Apply filters + search together
-function applyFilters() {
-    const query = document.getElementById('search-input').value.toLowerCase();
-    const clan = document.getElementById('filter-clan').value;
-    const weight = document.getElementById('filter-weight').value;
-    const weaver = document.getElementById('filter-weaver').value;
-    const range = document.getElementById('filter-range').value;
 
-    // Step 1: apply dropdown filters first
-    let filtered = allTartans.filter(tartan => {
-        const matchesClan = !clan || tartan.clan === clan;
-        const matchesWeight = !weight || tartan.weight === weight;
-        const matchesWeaver = !weaver || tartan.weavers?.name === weaver;
-        const matchesRange = !range || tartan.range === range;
-        return matchesClan && matchesWeight && matchesWeaver && matchesRange;
-    });
-
-    // Step 2: apply search only within filtered results
-    if (query) {
-        filtered = filtered.filter(tartan =>
-            (tartan.tartan_name || '').toLowerCase().includes(query) ||
-            (tartan.weavers?.name || '').toLowerCase().includes(query)
-        );
-    }
-
-    renderTartans(filtered);
-}
-
-// Toggle filters visibility
-document.getElementById('toggle-filters')?.addEventListener('click', () => {
-    const container = document.getElementById('filters-container');
-    container.style.display = container.style.display === 'none' ? 'flex' : 'none';
-});
-
-// Wire up search + filters
-['search-input', 'filter-clan', 'filter-weight', 'filter-weaver', 'filter-range'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', applyFilters);
-});
-
-// Run on page load
-document.addEventListener('DOMContentLoaded', loadTartans);
-
-/* Lightbox */
+/* =========================
+   Lightbox
+   ========================= */
 function openLightbox(url, name) {
     const modal = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
     const caption = document.getElementById('lightbox-caption');
-
     img.src = url || '';
     caption.textContent = name || '';
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
 }
-
 function closeLightbox() {
     const modal = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     img.src = '';
-    document.activeElement.blur(); // clear focus to avoid aria-hidden warning
 }
 
-/* Edit modal */
-function openEditModal(tartan) {
-    currentTartanId = tartan.id;
-    document.getElementById('edit-name').value = tartan.tartan_name || '';
-    document.getElementById('edit-weight').value = tartan.weight || '';
-    document.getElementById('edit-range').value = tartan.range || '';
-    document.getElementById('edit-image').value = tartan.image_url || '';
-    document.getElementById('edit-weaver').value = tartan.weavers?.name || 'Unknown';
+/* =========================
+   Edit modal + save/delete
+   ========================= */
+function openEditModal(t) {
+    currentTartanId = t.id;
+    document.getElementById('edit-name').value = t.tartan_name || '';
+    document.getElementById('edit-weight').value = t.weight || '';
+    document.getElementById('edit-range').value = t.range || '';
+    document.getElementById('edit-image').value = t.image_url || '';
+    document.getElementById('edit-weaver').value = t.weavers?.name || 'Unknown';
     const modal = document.getElementById('edit-modal');
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
 }
-
 function closeEditModal() {
     const modal = document.getElementById('edit-modal');
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
-    document.activeElement.blur(); // clear focus
     currentTartanId = null;
 }
 
-// Save changes
-document.getElementById('edit-form').addEventListener('submit', async (e) => {
+document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentTartanId) return;
 
@@ -218,8 +293,6 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
     };
 
     try {
-        console.log("Saving tartan", currentTartanId, updated);
-
         const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
             method: 'PATCH',
             headers: {
@@ -230,147 +303,49 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
             },
             body: JSON.stringify(updated)
         });
-
-        const result = await res.json();
-        console.log("PATCH result", res.status, result);
-
-        if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+        if (!res.ok) throw new Error(`Save HTTP ${res.status}`);
         closeEditModal();
-        loadTartans(); // refresh table
+        loadTartans(currentPage);
     } catch (err) {
         console.error('Error saving tartan:', err);
     }
 });
 
-// Delete record
 document.getElementById('delete-btn')?.addEventListener('click', async () => {
     if (!currentTartanId) return;
     if (!confirm('Delete this tartan?')) return;
 
     try {
-        console.log("Deleting tartan", currentTartanId);
-
         const res = await fetch(`${SUPABASE_URL}/rest/v1/tartans?id=eq.${currentTartanId}`, {
             method: 'DELETE',
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
+            headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
         });
-
-        if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
-        console.log("Delete result", res.status);
-
+        if (!res.ok) throw new Error(`Delete HTTP ${res.status}`);
         closeEditModal();
-        loadTartans(); // refresh table
+        loadTartans(currentPage);
     } catch (err) {
         console.error('Error deleting tartan:', err);
     }
 });
 
-// Cancel
-document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
-
-function openCatalogueModal(tartan) {
-    const modal = document.getElementById('catalogue-modal');
-    const title = document.getElementById('catalogue-title');
-    const nameInput = document.getElementById('catalogue-name');
-    const list = document.getElementById('catalogue-list');
-
-    title.textContent = 'Catalogue';
-    nameInput.value = tartan.tartan_name || '';
-    list.innerHTML = '';
-
-    // Parse prices JSONB safely
-    let prices = {};
-    try {
-        prices = typeof tartan.prices === 'string'
-            ? JSON.parse(tartan.prices)
-            : (tartan.prices || {});
-    } catch (err) {
-        console.error('Error parsing prices JSON', err);
-        prices = {};
-    }
-
-    // For each product, create a label + full-width disabled input
-    Object.entries(prices).forEach(([product, price]) => {
-        const label = document.createElement('label');
-        label.innerHTML = `${product}:<br><input type="text" value="£${price}" disabled />`;
-        list.appendChild(label);
-        list.appendChild(document.createElement('br'));
-    });
-
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-}
-
-// Close handlers (match your existing modal behavior)
-document.getElementById('catalogue-close')?.addEventListener('click', () => {
-    const modal = document.getElementById('catalogue-modal');
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-});
-
-// Optional: overlay click + Escape support
+/* =========================
+   Init + modal close wiring
+   ========================= */
 document.addEventListener('DOMContentLoaded', () => {
-    const catalogueModal = document.getElementById('catalogue-modal');
-    catalogueModal?.addEventListener('click', (e) => {
-        if (e.target === catalogueModal) {
-            catalogueModal.classList.remove('open');
-            catalogueModal.setAttribute('aria-hidden', 'true');
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            const catalogueModal = document.getElementById('catalogue-modal');
-            catalogueModal?.classList.remove('open');
-            catalogueModal?.setAttribute('aria-hidden', 'true');
-        }
-    });
-});
-
-/* Wire up overlay close + initial load */
-document.addEventListener('DOMContentLoaded', () => {
-    loadTartans();
+    loadTartans(currentPage);
 
     document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
-
     const lightbox = document.getElementById('lightbox');
-    if (lightbox) {
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
-    }
+    lightbox?.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
 
     const editModal = document.getElementById('edit-modal');
-    if (editModal) {
-        editModal.addEventListener('click', (e) => {
-            if (e.target === editModal) closeEditModal();
-        });
-    }
+    editModal?.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeLightbox();
-            closeEditModal();
+            closeLightbox(); closeEditModal();
+            const cat = document.getElementById('catalogue-modal');
+            cat?.classList.remove('open'); cat?.setAttribute('aria-hidden', 'true');
         }
-    });
-
-    document.getElementById('catalogue-close')?.addEventListener('click', () => {
-        const modal = document.getElementById('catalogue-modal');
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-    });
-
-    document.getElementById('search-input')?.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const filtered = allTartans.filter(tartan =>
-            (tartan.tartan_name || '').toLowerCase().includes(query) ||
-            (tartan.weight || '').toLowerCase().includes(query) ||
-            (tartan.range || '').toLowerCase().includes(query) ||
-            (tartan.weavers?.name || '').toLowerCase().includes(query)
-        );
-        renderTartans(filtered);
     });
 });
