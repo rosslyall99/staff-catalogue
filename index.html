@@ -14,7 +14,8 @@
     </header>
 
     <div id="search-container">
-        <input type="text" id="search-input" placeholder="Search tartans..." />
+        <input type="text" id="search-input" placeholder="Search tartans...">
+        <button type="button" id="clear-search" style="display:none;">Clear</button>
     </div>
 
     <button id="toggle-filters">Show Filters</button>
@@ -92,15 +93,29 @@
         </div>
     </div>
 
-    <!-- Catalogue Modal -->
     <div id="catalogue-modal" class="modal" aria-hidden="true">
         <div class="modal-box">
             <h2 id="catalogue-title">Catalogue</h2>
             <form id="catalogue-form">
                 <label>Tartan Name:<br>
                     <input type="text" id="catalogue-name" disabled />
-                </label><br>
-                <div id="catalogue-list"></div>
+                </label>
+                <br><br>
+
+                <div id="catalogue-list">
+                    <table class="catalogue-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price (£)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalogue-items">
+                            <!-- JS injects rows here -->
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="modal-actions">
                     <button type="button" id="catalogue-close">Close</button>
                 </div>

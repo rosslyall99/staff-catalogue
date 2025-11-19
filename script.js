@@ -62,7 +62,13 @@ async function loadTartans(page = 1) {
 
         renderTartans(data);
         renderPaginationControls();
-        ensureFiltersPopulatedOnce();
+        // 👇 Decide which filter population to use
+        if (activeFilters.query) {
+            updateFiltersFromData(data);   // only show options from current results
+        } else {
+            ensureFiltersPopulatedOnce();  // show full global options
+        }
+
     } catch (err) {
         console.error('Error loading tartans:', err);
         document.getElementById('tartan-list').innerHTML = '';
@@ -163,6 +169,9 @@ function renderPaginationControls() {
 /* =========================
    Filters + search wiring
    ========================= */
+const searchInput = document.getElementById('search-input');
+const clearBtn = document.getElementById('clear-search');
+
 document.getElementById('toggle-filters')?.addEventListener('click', () => {
     const container = document.getElementById('filters-container');
     // Force flex so it shows regardless of prior inline/CSS
@@ -170,8 +179,33 @@ document.getElementById('toggle-filters')?.addEventListener('click', () => {
     container.style.display = nowHidden ? 'flex' : 'none';
 });
 
-document.getElementById('search-input')?.addEventListener('input', (e) => {
+searchInput?.addEventListener('input', (e) => {
     activeFilters.query = (e.target.value || '').toLowerCase().trim();
+    loadTartans(1);
+
+    // Show/hide clear button
+    if (activeFilters.query) {
+        clearBtn.style.display = 'inline-block';
+    } else {
+        clearBtn.style.display = 'none';
+    }
+});
+
+clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    activeFilters.query = '';
+    clearBtn.style.display = 'none';
+
+    // Reset filter selections and state
+    activeFilters.clan = '';
+    activeFilters.weight = '';
+    activeFilters.weaver = '';
+    activeFilters.range = '';
+
+    // Reset filters to global options
+    ensureFiltersPopulatedOnce(true);
+
+    // Reload tartans with no search filter
     loadTartans(1);
 });
 
@@ -186,13 +220,25 @@ document.getElementById('search-input')?.addEventListener('input', (e) => {
     });
 });
 
+function updateFiltersFromData(rows) {
+    const clans = [...new Set(rows.map(r => r.clan).filter(Boolean))].sort();
+    const weights = [...new Set(rows.map(r => r.weight).filter(Boolean))].sort();
+    const ranges = [...new Set(rows.map(r => r.range).filter(Boolean))].sort();
+    const weavers = [...new Set(rows.map(r => r.weavers?.name).filter(Boolean))].sort();
+
+    fillSelect('filter-clan', clans);
+    fillSelect('filter-weight', weights);
+    fillSelect('filter-range', ranges);
+    fillSelect('filter-weaver', weavers);
+}
+
 /* =========================
    Populate filter dropdowns (inner join for weavers)
    ========================= */
 let filtersPopulated = false;
 
-async function ensureFiltersPopulatedOnce() {
-    if (filtersPopulated) return;
+async function ensureFiltersPopulatedOnce(force = false) {
+    if (filtersPopulated && !force) return;
 
     try {
         const url = `${SUPABASE_URL}/rest/v1/tartans?select=clan,weight,range,weavers!inner(name)&order=clan.asc`;
@@ -281,6 +327,87 @@ function closeEditModal() {
     currentTartanId = null;
 }
 
+function openCatalogueModal(t) {
+    const modal = document.getElementById('catalogue-modal');
+    const nameEl = document.getElementById('catalogue-name');
+    const itemsBody = document.getElementById('catalogue-items');
+
+    nameEl.value = t.tartan_name || '';
+    itemsBody.innerHTML = '';
+
+    const raw = t.prices; // JSONB from Supabase
+
+    const rows = normalizePrices(raw);
+
+    if (rows.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 2;
+        td.textContent = 'No products available';
+        tr.appendChild(td);
+        itemsBody.appendChild(tr);
+    } else {
+        rows.forEach(({ name, price }) => {
+            const tr = document.createElement('tr');
+
+            const tdName = document.createElement('td');
+            tdName.textContent = name ?? '—';
+
+            const tdPrice = document.createElement('td');
+            tdPrice.textContent = price != null && price !== '' ? formatGBP(price) : '—';
+
+            tr.appendChild(tdName);
+            tr.appendChild(tdPrice);
+            itemsBody.appendChild(tr);
+        });
+    }
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+// Convert JSONB into a uniform array of { name, price }
+function normalizePrices(raw) {
+    if (!raw) return [];
+
+    // If Supabase returns JSON already parsed:
+    if (typeof raw === 'object') {
+        // Array of objects
+        if (Array.isArray(raw)) {
+            return raw.map(item => ({
+                name: item.name ?? item.product ?? '',
+                price: item.price ?? item.amount ?? null
+            })).filter(r => r.name);
+        }
+        // Object map: { "Kilt Hire": 95, "Jacket Hire": 45 }
+        return Object.entries(raw).map(([key, val]) => ({
+            name: key,
+            price: typeof val === 'object' ? (val.price ?? val.amount ?? null) : val
+        }));
+    }
+
+    // If JSONB came through as a string, try to parse
+    try {
+        const parsed = JSON.parse(raw);
+        return normalizePrices(parsed);
+    } catch {
+        return [];
+    }
+}
+
+function formatGBP(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return String(value);
+    return num.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+
+function closeCatalogueModal() {
+    const modal = document.getElementById('catalogue-modal');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
 document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!currentTartanId) return;
@@ -340,6 +467,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editModal = document.getElementById('edit-modal');
     editModal?.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
+
+    // ✅ Add this line for the cancel button
+    document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
+
+    document.getElementById('catalogue-close')?.addEventListener('click', closeCatalogueModal);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
