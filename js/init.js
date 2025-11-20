@@ -1,5 +1,5 @@
-import { loadTartans } from './tartans.js';
-import { activeFilters } from './state.js';
+import { deleteTartan, loadTartans, updateTartan } from './tartans.js';
+import { activeFilters, getState } from './state.js';
 import {
     openLightbox, closeLightbox,
     openEditModal, closeEditModal,
@@ -8,10 +8,10 @@ import {
 import { ensureFiltersPopulatedOnce } from './filters.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial load of tartans
+    // Initial load
     loadTartans(1);
 
-    // ✅ Populate filters globally on startup
+    // Populate filters globally on startup
     ensureFiltersPopulatedOnce();
 
     // Lightbox close wiring
@@ -23,6 +23,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const editModal = document.getElementById('edit-modal');
     editModal?.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
     document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
+
+    // ✅ Edit form submit handler (Save button)
+    document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { currentTartanId } = getState();
+        if (!currentTartanId) return;
+
+        const updates = {
+            tartan_name: document.getElementById('edit-name').value,
+            weight: document.getElementById('edit-weight').value,
+            range: document.getElementById('edit-range').value,
+            image_url: document.getElementById('edit-image').value
+            // weaver is disabled, so not updated here
+        };
+
+        try {
+            await updateTartan(currentTartanId, updates);
+            closeEditModal();
+            loadTartans(1); // reload to show changes
+        } catch (err) {
+            console.error('Error saving tartan:', err);
+            alert('Failed to save changes');
+        }
+    });
+
+    // Delete button handler
+    document.getElementById('delete-btn')?.addEventListener('click', async () => {
+        const { currentTartanId } = getState();
+        if (!currentTartanId) return;
+
+        if (!confirm('Are you sure you want to delete this tartan?')) return;
+
+        try {
+            await deleteTartan(currentTartanId);
+            closeEditModal();
+            loadTartans(1); // reload to reflect deletion
+        } catch (err) {
+            console.error('Error deleting tartan:', err);
+            alert('Failed to delete tartan');
+        }
+    });
+
 
     // Catalogue modal close wiring
     document.getElementById('catalogue-close')?.addEventListener('click', closeCatalogueModal);

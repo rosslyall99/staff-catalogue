@@ -14,7 +14,7 @@ export function renderTartans(tartans) {
             img.src = t.image_url;
             img.className = 'thumbnail';
             img.addEventListener('click', () => {
-                import('./modals.js').then(({ openLightbox }) => openLightbox(t.image_url, t.tartan_name));
+                import('./modal.js').then(({ openLightbox }) => openLightbox(t.image_url, t.tartan_name));
             });
             tdThumb.appendChild(img);
         } else {
@@ -45,7 +45,7 @@ export function renderTartans(tartans) {
         editBtn.title = 'Edit';
         editBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="22" height="22">`;
         editBtn.addEventListener('click', () => {
-            import('./modals.js').then(({ openEditModal }) => openEditModal(t));
+            import('./modal.js').then(({ openEditModal }) => openEditModal(t));
         });
         tdActions.appendChild(editBtn);
 
@@ -53,7 +53,7 @@ export function renderTartans(tartans) {
         catBtn.title = 'Catalogue';
         catBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="22" height="22">`;
         catBtn.addEventListener('click', () => {
-            import('./modals.js').then(({ openCatalogueModal }) => openCatalogueModal(t));
+            import('./modal.js').then(({ openCatalogueModal }) => openCatalogueModal(t));
         });
         tdActions.appendChild(catBtn);
 

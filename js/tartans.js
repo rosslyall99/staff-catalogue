@@ -75,3 +75,41 @@ export async function loadTartans(page = 1) {
         document.getElementById('pagination-controls').innerHTML = '';
     }
 }
+
+/* =========================
+   Update record
+   ========================= */
+
+export async function updateTartan(id, updates) {
+    const url = `${SUPABASE_URL}/rest/v1/tartans?id=eq.${id}`;
+    const res = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+            apikey: SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation'
+        },
+        body: JSON.stringify(updates)
+    });
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Update failed: ${res.status} ${text}`);
+    }
+    return res.json();
+}
+
+export async function deleteTartan(id) {
+    const url = `${SUPABASE_URL}/rest/v1/tartans?id=eq.${id}`;
+    const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            apikey: SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Delete failed: ${res.status} ${text}`);
+    }
+    return true;
+}
