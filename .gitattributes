@@ -1,14 +1,27 @@
-# Enforce LF line endings for source files
-*.js     text eol=lf
+# --- Text files: enforce LF line endings ---
 *.html   text eol=lf
 *.css    text eol=lf
+*.js     text eol=lf
 *.json   text eol=lf
 *.md     text eol=lf
+*.xml    text eol=lf
+*.yml    text eol=lf
+*.txt    text eol=lf
 
-# Windows batch files should stay CRLF
+# --- Windows-specific scripts: keep CRLF ---
 *.bat    text eol=crlf
+*.cmd    text eol=crlf
 
-# Binary files (no line ending changes)
+# --- Binary files: don't modify line endings ---
 *.png    binary
 *.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.svg    binary
+*.ico    binary
+*.pdf    binary
 *.zip    binary
+*.gz     binary
+*.tar    binary
+*.mp4    binary
+*.mp3    binary
