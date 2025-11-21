@@ -6,21 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tartan Spreadsheet</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Quicksand:wght@300..700&display=swap');
+    </style>
 </head>
 
 <body>
-    <header>
+    <!-- <header>
         <h1>Tartan Spreadsheet View</h1>
-    </header>
+    </header> -->
 
     <div id="search-container">
         <input type="text" id="search-input" placeholder="Search tartans...">
         <button type="button" id="clear-search" style="display:none;">Clear</button>
     </div>
 
-    <button id="toggle-filters">Show Filters</button>
+    <!-- <button id="toggle-filters">Show Filters</button> -->
 
-    <div id="filters-container" style="display: none;">
+    <div id="filters-container">
         <select id="filter-clan" data-label="Clan"></select>
         <select id="filter-weight" data-label="Weight"></select>
         <select id="filter-weaver" data-label="Weaver"></select>
@@ -28,26 +31,13 @@
     </div>
 
     <main>
-        <div class="table-wrapper">
-            <table id="tartan-table">
-                <thead>
-                    <tr>
-                        <th>Thumbnail</th>
-                        <th>Name</th>
-                        <th>Weight</th>
-                        <th>Weaver</th>
-                        <th>Range</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tartan-list">
-                    <!-- Rows injected by script.js -->
-                </tbody>
-            </table>
+        <div class="cards-container" id="tartan-cards">
+            <!-- Cards injected by JS -->
         </div>
+    </main>
 
-        <!-- Pagination control bar under the grid -->
-        <div id="pagination-controls" class="pagination-bar"></div>
+    <!-- Pagination control bar under the grid -->
+    <div id="pagination-controls" class="pagination-bar"></div>
     </main>
 
     <!-- Lightbox -->

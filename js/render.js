@@ -1,64 +1,81 @@
 import { getState } from './state.js';
 import { loadTartans } from './tartans.js';
 
+/**
+ * Render tartans as cards only.
+ * @param {Array} tartans - Array of tartan objects
+ */
 export function renderTartans(tartans) {
-    const tbody = document.getElementById('tartan-list');
-    tbody.innerHTML = '';
+    const container = document.getElementById('tartan-cards');
+    if (!container) return;
+    container.innerHTML = '';
 
     tartans.forEach(t => {
-        const tr = document.createElement('tr');
+        const card = document.createElement('div');
+        card.className = 'card';
 
-        const tdThumb = document.createElement('td');
+        // Thumbnail
         if (t.image_url) {
             const img = document.createElement('img');
             img.src = t.image_url;
-            img.className = 'thumbnail';
+            img.className = 'card-image';
             img.addEventListener('click', () => {
-                import('./modal.js').then(({ openLightbox }) => openLightbox(t.image_url, t.tartan_name));
+                import('./modal.js').then(({ openLightbox }) =>
+                    openLightbox(t.image_url, t.tartan_name)
+                );
             });
-            tdThumb.appendChild(img);
-        } else {
-            tdThumb.textContent = '—';
+            card.appendChild(img);
         }
-        tr.appendChild(tdThumb);
 
-        const tdName = document.createElement('td');
-        tdName.textContent = t.tartan_name || '—';
-        tr.appendChild(tdName);
+        // Name
+        const title = document.createElement('h2');
+        title.className = 'card-title';
+        title.textContent = t.tartan_name || '—';
+        card.appendChild(title);
 
-        const tdWeight = document.createElement('td');
-        tdWeight.textContent = t.weight || '—';
-        tr.appendChild(tdWeight);
+        // Meta info
+        const weight = document.createElement('p');
+        weight.textContent = `Weight: ${t.weight || '—'}`;
+        card.appendChild(weight);
 
-        const tdWeaver = document.createElement('td');
-        tdWeaver.textContent = t.weavers?.name || 'Unknown';
-        tr.appendChild(tdWeaver);
+        const weaver = document.createElement('p');
+        weaver.textContent = `Weaver: ${t.weavers?.name || 'Unknown'}`;
+        card.appendChild(weaver);
 
-        const tdRange = document.createElement('td');
-        tdRange.textContent = t.range || '—';
-        tr.appendChild(tdRange);
+        const range = document.createElement('p');
+        range.textContent = `Range: ${t.range || '—'}`;
+        card.appendChild(range);
 
-        const tdActions = document.createElement('td');
-        tdActions.className = 'actions';
+        // Actions
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
 
         const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-edit';
         editBtn.title = 'Edit';
-        editBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="22" height="22">`;
+        editBtn.innerHTML = `
+          <img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="18" height="18">
+          <span>Edit</span>
+        `;
         editBtn.addEventListener('click', () => {
             import('./modal.js').then(({ openEditModal }) => openEditModal(t));
         });
-        tdActions.appendChild(editBtn);
+        actions.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
+        catBtn.className = 'btn btn-catalogue';
         catBtn.title = 'Catalogue';
-        catBtn.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="22" height="22">`;
+        catBtn.innerHTML = `
+          <img src="https://cdn-icons-png.flaticon.com/512/5402/5402751.png" alt="Catalogue" width="18" height="18">
+          <span>Catalogue</span>
+        `;
         catBtn.addEventListener('click', () => {
             import('./modal.js').then(({ openCatalogueModal }) => openCatalogueModal(t));
         });
-        tdActions.appendChild(catBtn);
+        actions.appendChild(catBtn);
 
-        tr.appendChild(tdActions);
-        tbody.appendChild(tr);
+        card.appendChild(actions);
+        container.appendChild(card);
     });
 }
 

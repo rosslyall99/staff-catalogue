@@ -3,7 +3,17 @@ import { activeFilters, getState, setState } from './state.js';
 import { renderTartans, renderPaginationControls } from './render.js';
 import { updateFiltersFromData, ensureFiltersPopulatedOnce } from './filters.js';
 
-const { itemsPerPage } = getState();
+/* =========================
+   Responsive items per page
+   ========================= */
+function getItemsPerPage() {
+    const width = window.innerWidth;
+
+    if (width >= 1440) return 18;   // Extra‑Large screens → 18 cards (6 per row)
+    if (width >= 1024) return 12;   // Large screens → 12 cards (4 per row)
+    if (width >= 600) return 12;    // Medium screens → 12 cards (4 per row)
+    return 8;                       // Small screens → 8 cards (1 per row)
+}
 
 /* =========================
    Build query URL (inner join + or clause)
@@ -32,7 +42,7 @@ export function buildTartansUrl() {
    ========================= */
 export async function loadTartans(page = 1) {
     try {
-        const { itemsPerPage } = getState();
+        const itemsPerPage = getItemsPerPage();
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage - 1;
         const url = buildTartansUrl();
@@ -59,7 +69,7 @@ export async function loadTartans(page = 1) {
             totalPages: Math.max(1, Math.ceil(total / itemsPerPage))
         });
 
-        renderTartans(data);
+        renderTartans(data, "cards");
         renderPaginationControls();
 
         // Decide which filter population to use
@@ -71,7 +81,7 @@ export async function loadTartans(page = 1) {
 
     } catch (err) {
         console.error('Error loading tartans:', err);
-        document.getElementById('tartan-list').innerHTML = '';
+        document.getElementById('tartan-cards').innerHTML = '';
         document.getElementById('pagination-controls').innerHTML = '';
     }
 }
@@ -79,7 +89,6 @@ export async function loadTartans(page = 1) {
 /* =========================
    Update record
    ========================= */
-
 export async function updateTartan(id, updates) {
     const url = `${SUPABASE_URL}/rest/v1/tartans?id=eq.${id}`;
     const res = await fetch(url, {
@@ -113,3 +122,11 @@ export async function deleteTartan(id) {
     }
     return true;
 }
+
+/* =========================
+   Recalculate on resize
+   ========================= */
+window.addEventListener('resize', () => {
+    const { currentPage } = getState();
+    loadTartans(currentPage);
+});
