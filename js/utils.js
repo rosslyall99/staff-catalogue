@@ -1,7 +1,8 @@
-export function fillSelect(id, values) {
+export function fillSelect(id, values, selectedValue = '') {
     const select = document.getElementById(id);
     if (!select) return;
     select.innerHTML = '';
+
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = select.getAttribute('data-label') || 'Select';
@@ -11,6 +12,9 @@ export function fillSelect(id, values) {
         const opt = document.createElement('option');
         opt.value = val;
         opt.textContent = val;
+        if (val === selectedValue) {
+            opt.selected = true; // ✅ preserve current selection
+        }
         select.appendChild(opt);
     });
 }

@@ -115,6 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (id === 'filter-weaver') activeFilters.weaver = val;
             if (id === 'filter-range') activeFilters.range = val;
             loadTartans(1);
+
+            // ✅ show clear-search button when any filter is active
+            const clearBtn = document.getElementById('clear-search');
+            if (clearBtn) clearBtn.style.display = 'inline-block';
         });
     });
 

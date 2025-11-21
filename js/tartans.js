@@ -71,13 +71,28 @@ export async function loadTartans(page = 1) {
 
         renderTartans(data, "cards");
         renderPaginationControls();
-        updateFiltersFromData(data);
 
-        // Decide which filter population to use
-        if (activeFilters.query) {
-            updateFiltersFromData(data);   // only show options from current results
+        // ✅ If any filter is active, rebuild dropdowns from current results
+        if (
+            activeFilters.clan ||
+            activeFilters.weight ||
+            activeFilters.range ||
+            activeFilters.weaver ||
+            activeFilters.query
+        ) {
+            updateFiltersFromData(data);
         } else {
-            ensureFiltersPopulatedOnce();  // show full global options
+            // ✅ If filters are cleared, repopulate dropdowns from ALL tartans
+            const urlAll = `${SUPABASE_URL}/rest/v1/tartans?select=clan,weight,range,weavers!inner(name)&order=clan.asc`;
+            const resAll = await fetch(urlAll, {
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`,
+                    Range: '0-9999' // big enough to cover all rows
+                }
+            });
+            const rowsAll = await resAll.json();
+            updateFiltersFromData(rowsAll);
         }
 
     } catch (err) {

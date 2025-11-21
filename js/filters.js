@@ -10,10 +10,10 @@ export function updateFiltersFromData(rows) {
     const ranges = [...new Set(rows.map(r => r.range).filter(Boolean))].sort();
     const weavers = [...new Set(rows.map(r => r.weavers?.name).filter(Boolean))].sort();
 
-    fillSelect('filter-clan', clans);
-    fillSelect('filter-weight', weights);
-    fillSelect('filter-range', ranges);
-    fillSelect('filter-weaver', weavers);
+    fillSelect('filter-clan', clans, activeFilters.clan);
+    fillSelect('filter-weight', weights, activeFilters.weight);
+    fillSelect('filter-range', ranges, activeFilters.range);
+    fillSelect('filter-weaver', weavers, activeFilters.weaver);
 }
 
 export async function ensureFiltersPopulatedOnce(force = false) {
