@@ -78,6 +78,22 @@ header {
     background: #fff;
 }
 
+@media (max-width: 600px) {
+    #filters-container {
+        flex-wrap: wrap;
+        /* allow wrapping to multiple lines */
+        justify-content: center;
+        /* center horizontally */
+    }
+
+    #filters-container select {
+        flex: 1 1 45%;
+        /* each filter ~45% width → 2 per row */
+        max-width: 200px;
+        /* optional: cap width */
+    }
+}
+
 #filters-container select {
     flex: 0 0 160px;
     /* fixed width for all filters */
@@ -286,6 +302,7 @@ td {
 /* Default: Small screens = 1 per row */
 .cards-container {
     grid-template-columns: repeat(1, 1fr);
+    justify-items: center;
 }
 
 /* Medium screens = 3 per row */
