@@ -71,6 +71,7 @@ export async function loadTartans(page = 1) {
 
         renderTartans(data, "cards");
         renderPaginationControls();
+        updateFiltersFromData(data);
 
         // Decide which filter population to use
         if (activeFilters.query) {
