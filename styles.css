@@ -78,7 +78,7 @@ header {
     background: #fff;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
     #filters-container {
         flex-wrap: wrap;
         /* allow wrapping to multiple lines */
@@ -105,7 +105,7 @@ header {
 }
 
 main {
-    padding-left: 1rem;
+    padding-left: 0rem;
 }
 
 .table-wrapper {
