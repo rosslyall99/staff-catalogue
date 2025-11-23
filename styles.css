@@ -218,12 +218,13 @@ td {
     background: white;
     padding: 1.5rem;
     border-radius: 8px;
-    width: 320px;
+    width: 400px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .modal-box h2 {
-    margin-top: 0;
+    margin: 0;
+    text-align: center;
 }
 
 .modal-box label {
@@ -252,10 +253,26 @@ td {
 }
 
 .modal-actions button {
-    padding: 0.4rem 0.8rem;
+    font-family: "Quicksand", sans-serif;
+    flex: 1;
+    /* each button takes equal share of space */
+    min-width: 100px;
+    /* optional: set a minimum width */
+    justify-content: center;
+    /* center icon + text inside */
+    background-color: #007BFF;
+    color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    font-weight: 400;
     cursor: pointer;
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 #delete-btn {
@@ -290,6 +307,20 @@ td {
     background: #eee;
     color: #666;
     cursor: not-allowed;
+}
+
+#catalogue-items td,
+#catalogue-items th {
+    font-size: 1.1rem;
+    /* Increase text size */
+    padding: 0.5rem 0.75rem;
+    /* Add breathing room */
+    vertical-align: middle;
+    /* Align icons and text */
+}
+
+#catalogue-items td img {
+    vertical-align: middle;
 }
 
 /* Cards */

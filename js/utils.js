@@ -42,7 +42,6 @@ export function normalizePrices(raw) {
 }
 
 export function formatGBP(value) {
-    const num = Number(value);
-    if (!Number.isFinite(num)) return String(value);
-    return num.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (value == null || value === '') return '—';
+    return `£${parseFloat(value).toFixed(2)}`;
 }
