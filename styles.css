@@ -324,38 +324,16 @@ td {
 }
 
 /* Cards */
+
+/* Default: mobile first = 1 card per row */
 .cards-container {
     display: grid;
     gap: 16px;
     margin-top: 1rem;
-}
-
-/* Default: Small screens = 1 per row */
-.cards-container {
-    grid-template-columns: repeat(1, 1fr);
-    justify-items: center;
-}
-
-/* Medium screens = 3 per row */
-@media (max-width: 600px) {
-    .cards-container {
-        grid-template-columns: repeat(3, 1fr);
-        justify-items: stretch;
-    }
-}
-
-/* Large screens = 4 per row */
-@media (max-width: 1024px) {
-    .cards-container {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-/* Extra Large screens = 6 per row */
-@media (min-width: 1024px) {
-    .cards-container {
-        grid-template-columns: repeat(6, 1fr);
-    }
+    grid-template-columns: 1fr;
+    /* one card per row */
+    justify-items: stretch;
+    /* stretch to full width */
 }
 
 .card {
@@ -363,17 +341,32 @@ td {
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     padding: 16px;
-    max-width: 250px;
+    width: 100%;
+    /* fill container */
+    max-width: none;
+    /* remove 250px cap */
+    box-sizing: border-box;
     transition: 0.2s ease;
 }
 
-@media (max-width: 600px) {
-    .card {
-        width: 100%;
-        /* fill the same width as search-input */
-        max-width: none;
-        /* remove the 250px cap */
-        box-sizing: border-box;
+/* Tablet: 3 cards per row */
+@media (min-width: 600px) {
+    .cards-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Desktop: 4 cards per row */
+@media (min-width: 1024px) {
+    .cards-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Extra large: 6 cards per row */
+@media (min-width: 1440px) {
+    .cards-container {
+        grid-template-columns: repeat(6, 1fr);
     }
 }
 
