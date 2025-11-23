@@ -33,34 +33,22 @@ export function renderTartans(tartans) {
         title.textContent = t.tartan_name || '—';
         card.appendChild(title);
 
-        // Meta info
+        // Meta info (now nested under range)
         const weight = document.createElement('p');
-        weight.textContent = `Weight: ${t.weight || '—'}`;
+        weight.textContent = `Weight: ${t.range?.weight?.name || '—'}`;
         card.appendChild(weight);
 
         const weaver = document.createElement('p');
-        weaver.textContent = `Weaver: ${t.weavers?.name || 'Unknown'}`;
+        weaver.textContent = `Weaver: ${t.range?.weavers?.name || 'Unknown'}`;
         card.appendChild(weaver);
 
         const range = document.createElement('p');
-        range.textContent = `Range: ${t.range || '—'}`;
+        range.textContent = `Range: ${t.range?.range_name || '—'}`;
         card.appendChild(range);
 
-        // Actions
+        // Actions (Catalogue only, no edit)
         const actions = document.createElement('div');
         actions.className = 'card-actions';
-
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn btn-edit';
-        editBtn.title = 'Edit';
-        editBtn.innerHTML = `
-          <img src="https://cdn-icons-png.flaticon.com/512/3642/3642467.png" alt="Edit" width="18" height="18">
-          <span>Edit</span>
-        `;
-        editBtn.addEventListener('click', () => {
-            import('./modal.js').then(({ openEditModal }) => openEditModal(t));
-        });
-        actions.appendChild(editBtn);
 
         const catBtn = document.createElement('button');
         catBtn.className = 'btn btn-catalogue';

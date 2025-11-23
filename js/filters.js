@@ -5,10 +5,13 @@ import { fillSelect } from './utils.js';
 let filtersPopulated = false;
 
 export function updateFiltersFromData(rows) {
+    // Clan still comes directly from tartans
     const clans = [...new Set(rows.map(r => r.clan).filter(Boolean))].sort();
-    const weights = [...new Set(rows.map(r => r.weight).filter(Boolean))].sort();
-    const ranges = [...new Set(rows.map(r => r.range).filter(Boolean))].sort();
-    const weavers = [...new Set(rows.map(r => r.weavers?.name).filter(Boolean))].sort();
+
+    // Weight, Range, Weaver now come via the nested range object
+    const weights = [...new Set(rows.map(r => r.range?.weight?.name).filter(Boolean))].sort();
+    const ranges = [...new Set(rows.map(r => r.range?.range_name).filter(Boolean))].sort();
+    const weavers = [...new Set(rows.map(r => r.range?.weavers?.name).filter(Boolean))].sort();
 
     fillSelect('filter-clan', clans, activeFilters.clan);
     fillSelect('filter-weight', weights, activeFilters.weight);
@@ -19,7 +22,7 @@ export function updateFiltersFromData(rows) {
 export async function ensureFiltersPopulatedOnce(force = false) {
     if (filtersPopulated && !force) return;
     try {
-        const url = `${SUPABASE_URL}/rest/v1/tartans?select=clan,weight,range,weavers!inner(name)&order=clan.asc`;
+        const url = `${SUPABASE_URL}/rest/v1/tartans?select=clan,range!inner(range_name,weight!inner(name),weavers!inner(name))&order=clan.asc`;
         const res = await fetch(url, {
             headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Range: '0-999' }
         });

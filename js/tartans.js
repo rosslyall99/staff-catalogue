@@ -19,19 +19,27 @@ function getItemsPerPage() {
    Build query URL (inner join + or clause)
    ========================= */
 export function buildTartansUrl() {
-    let url = `${SUPABASE_URL}/rest/v1/tartans?select=*,weavers!inner(*)&order=tartan_name.asc`;
+    let url = `${SUPABASE_URL}/rest/v1/tartans?select=*,range!inner(range_name,weight!inner(name),weavers!inner(name))&order=tartan_name.asc`;
 
-    if (activeFilters.clan) url += `&clan=eq.${encodeURIComponent(activeFilters.clan)}`;
-    if (activeFilters.weight) url += `&weight=eq.${encodeURIComponent(activeFilters.weight)}`;
-    if (activeFilters.range) url += `&range=eq.${encodeURIComponent(activeFilters.range)}`;
-    if (activeFilters.weaver) url += `&weavers.name=eq.${encodeURIComponent(activeFilters.weaver)}`;
+    if (activeFilters.clan) {
+        url += `&clan=eq.${encodeURIComponent(activeFilters.clan)}`;
+    }
+    if (activeFilters.weight) {
+        url += `&range.weight.name=eq.${encodeURIComponent(activeFilters.weight)}`;
+    }
+    if (activeFilters.range) {
+        url += `&range.range_name=eq.${encodeURIComponent(activeFilters.range)}`;
+    }
+    if (activeFilters.weaver) {
+        url += `&range.weavers.name=eq.${encodeURIComponent(activeFilters.weaver)}`;
+    }
 
     if (activeFilters.query) {
         const q = activeFilters.query.replace(/[^\w\s-]/gi, '').toLowerCase();
         const rawClause = `(tartan_name.ilike.*${q}*)`;
         url += `&or=${encodeURIComponent(rawClause)}`;
-        // Alternative: include weaver search too
-        // url += `&or=(tartan_name.ilike.*${q}*,weavers.name.ilike.*${q}*)`;
+        // Optional: include weaver search too
+        // url += `&or=(tartan_name.ilike.*${q}*,range.weavers.name.ilike.*${q}*)`;
     }
 
     return url;
@@ -83,7 +91,7 @@ export async function loadTartans(page = 1) {
             updateFiltersFromData(data);
         } else {
             // ✅ If filters are cleared, repopulate dropdowns from ALL tartans
-            const urlAll = `${SUPABASE_URL}/rest/v1/tartans?select=clan,weight,range,weavers!inner(name)&order=clan.asc`;
+            const urlAll = `${SUPABASE_URL}/rest/v1/tartans?select=clan,range!inner(range_name,weight!inner(name),weavers!inner(name))&order=clan.asc`;
             const resAll = await fetch(urlAll, {
                 headers: {
                     apikey: SUPABASE_KEY,
