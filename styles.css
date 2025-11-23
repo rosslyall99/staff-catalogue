@@ -337,26 +337,26 @@ td {
 }
 
 /* Medium screens = 3 per row */
-@media (min-width: 600px) {
+@media (max-width: 600px) {
     .cards-container {
         grid-template-columns: repeat(3, 1fr);
+        justify-items: stretch;
     }
 }
 
 /* Large screens = 4 per row */
-@media (min-width: 1024px) {
+@media (max-width: 1024px) {
     .cards-container {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
 /* Extra Large screens = 6 per row */
-@media (min-width: 1440px) {
+@media (min-width: 1024px) {
     .cards-container {
         grid-template-columns: repeat(6, 1fr);
     }
 }
-
 
 .card {
     background: #fff;
@@ -365,6 +365,16 @@ td {
     padding: 16px;
     max-width: 250px;
     transition: 0.2s ease;
+}
+
+@media (max-width: 600px) {
+    .card {
+        width: 100%;
+        /* fill the same width as search-input */
+        max-width: none;
+        /* remove the 250px cap */
+        box-sizing: border-box;
+    }
 }
 
 .card:hover {
