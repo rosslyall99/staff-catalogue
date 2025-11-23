@@ -57,13 +57,7 @@ header {
     margin-left: 1rem;
 }
 
-#toggle-filters {
-    margin: 0.5rem 0;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-    font-family: 'Quicksand', sans-serif;
-}
+
 
 #filters-container {
     display: flex;
@@ -74,38 +68,40 @@ header {
     box-sizing: border-box;
     width: 100%;
     padding: 1rem;
-    padding-top: 0rem;
     background: #fff;
+}
+
+#filters-container select {
+    width: 160px;
+    max-width: 160px;
+    min-width: 160px;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
 @media (max-width: 600px) {
     #filters-container {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        /* two equal columns */
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns */
         gap: 0.5rem;
-        justify-items: stretch;
-        /* make selects fill their column */
     }
 
     #filters-container select {
         width: 100%;
-        /* force full column width */
+        /* fill column */
         max-width: none;
-        /* remove any cap */
-        flex: none;
-        /* disable flex sizing */
+        /* remove cap */
+        min-width: 0;
+        /* allow shrink */
     }
-}
-
-#filters-container select {
-    flex: 0 0 160px;
-    /* fixed width for all filters */
-    font-family: 'Quicksand', sans-serif;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
 }
 
 main {
