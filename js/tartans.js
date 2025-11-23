@@ -19,7 +19,7 @@ function getItemsPerPage() {
    Build query URL (inner join + or clause)
    ========================= */
 export function buildTartansUrl() {
-    let url = `${SUPABASE_URL}/rest/v1/tartans?select=*,range!inner(range_name,weight!inner(name),weavers!inner(name))&order=tartan_name.asc`;
+    let url = `${SUPABASE_URL}/rest/v1/tartans?select=*,range!inner(range_name,weight!inner(name),weavers!inner(name),range_products(*))&order=tartan_name.asc`;
 
     if (activeFilters.clan) {
         url += `&clan=eq.${encodeURIComponent(activeFilters.clan)}`;
@@ -54,9 +54,6 @@ export async function loadTartans(page = 1) {
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage - 1;
         const url = buildTartansUrl();
-
-        console.log('[tartans GET]', `${url} [Range ${start}-${end}]`);
-
         const res = await fetch(url, {
             headers: {
                 apikey: SUPABASE_KEY,

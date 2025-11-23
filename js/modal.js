@@ -46,9 +46,10 @@ export function openCatalogueModal(t) {
     nameEl.value = t.tartan_name || '';
     itemsBody.innerHTML = '';
 
-    const rows = normalizePrices(t.prices);
+    // ✅ Products now come from range_products via the joined range
+    const products = t.range?.range_products || [];
 
-    if (rows.length === 0) {
+    if (!products || products.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
         td.colSpan = 2;
@@ -56,12 +57,17 @@ export function openCatalogueModal(t) {
         tr.appendChild(td);
         itemsBody.appendChild(tr);
     } else {
-        rows.forEach(({ name, price }) => {
+        products.forEach(p => {
             const tr = document.createElement('tr');
+
             const tdName = document.createElement('td');
-            tdName.textContent = name ?? '—';
+            tdName.textContent = p.product_type ?? '—';
+
             const tdPrice = document.createElement('td');
-            tdPrice.textContent = price != null && price !== '' ? formatGBP(price) : '—';
+            tdPrice.textContent = p.price != null && p.price !== ''
+                ? formatGBP(p.price)
+                : '—';
+
             tr.appendChild(tdName);
             tr.appendChild(tdPrice);
             itemsBody.appendChild(tr);

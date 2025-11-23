@@ -78,19 +78,23 @@ header {
     background: #fff;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 600px) {
     #filters-container {
-        flex-wrap: wrap;
-        /* allow wrapping to multiple lines */
-        justify-content: center;
-        /* center horizontally */
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        /* two equal columns */
+        gap: 0.5rem;
+        justify-items: stretch;
+        /* make selects fill their column */
     }
 
     #filters-container select {
-        flex: 1 1 45%;
-        /* each filter ~45% width → 2 per row */
-        max-width: 200px;
-        /* optional: cap width */
+        width: 100%;
+        /* force full column width */
+        max-width: none;
+        /* remove any cap */
+        flex: none;
+        /* disable flex sizing */
     }
 }
 
