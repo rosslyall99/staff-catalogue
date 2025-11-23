@@ -86,7 +86,7 @@ header {
     border: 1px solid #ccc;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
     #filters-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -325,49 +325,45 @@ td {
 
 /* Cards */
 
-/* Default: mobile first = 1 card per row */
+/* Default: small screens (mobile) → 1 column, 8 rows */
 .cards-container {
     display: grid;
-    gap: 16px;
-    margin-top: 1rem;
-    grid-template-columns: 1fr;
-    /* one card per row */
-    justify-items: stretch;
-    /* stretch to full width */
+    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    justify-items: center;
+    padding: 1rem;
 }
 
-.card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    padding: 16px;
-    width: 100%;
-    /* fill container */
-    max-width: none;
-    /* remove 250px cap */
-    box-sizing: border-box;
-    transition: 0.2s ease;
-}
-
-/* Tablet: 3 cards per row */
+/* Medium screens (tablet) → 3 columns, 4 rows */
 @media (min-width: 600px) {
     .cards-container {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
-/* Desktop: 4 cards per row */
+/* Large screens (desktop) → 4 columns, 4 rows */
 @media (min-width: 1024px) {
     .cards-container {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
-/* Extra large: 6 cards per row */
+/* Extra-large screens → 6 columns, 3 rows */
 @media (min-width: 1440px) {
     .cards-container {
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(6, minmax(220px, 1fr));
     }
+}
+
+.card {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    transition: 0.2s ease;
 }
 
 .card:hover {
