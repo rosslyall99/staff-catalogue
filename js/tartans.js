@@ -16,7 +16,7 @@ function getItemsPerPage() {
 }
 
 /* =========================
-   Build query URL (inner join + or clause)
+   Build query URL for cards
    ========================= */
 export function buildTartansUrl() {
     let url = `${SUPABASE_URL}/rest/v1/tartans?select=*,range!inner(range_name,weight!inner(name),weavers!inner(name),range_products(*))&order=tartan_name.asc`;
@@ -39,7 +39,35 @@ export function buildTartansUrl() {
         const rawClause = `(tartan_name.ilike.*${q}*)`;
         url += `&or=${encodeURIComponent(rawClause)}`;
         // Optional: include weaver search too
-        // url += `&or=(tartan_name.ilike.*${q}*,range.weavers.name.ilike.*${q}*)`;
+        // url += `&or=${encodeURIComponent(`(tartan_name.ilike.*${q}*,range.weavers.name.ilike.*${q}*)`)}`;
+    }
+
+    return url;
+}
+
+/* =========================================
+   Build slim URL for filter option population
+   ========================================= */
+function buildFilterOptionsUrl() {
+    let url = `${SUPABASE_URL}/rest/v1/tartans?select=clan,range!inner(range_name,weight!inner(name),weavers!inner(name))&order=clan.asc`;
+
+    if (activeFilters.clan) {
+        url += `&clan=eq.${encodeURIComponent(activeFilters.clan)}`;
+    }
+    if (activeFilters.weight) {
+        url += `&range.weight.name=eq.${encodeURIComponent(activeFilters.weight)}`;
+    }
+    if (activeFilters.range) {
+        url += `&range.range_name=eq.${encodeURIComponent(activeFilters.range)}`;
+    }
+    if (activeFilters.weaver) {
+        url += `&range.weavers.name=eq.${encodeURIComponent(activeFilters.weaver)}`;
+    }
+
+    if (activeFilters.query) {
+        const q = activeFilters.query.replace(/[^\w\s-]/gi, '').toLowerCase();
+        const rawClause = `(tartan_name.ilike.*${q}*)`;
+        url += `&or=${encodeURIComponent(rawClause)}`;
     }
 
     return url;
@@ -53,6 +81,8 @@ export async function loadTartans(page = 1) {
         const itemsPerPage = getItemsPerPage();
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage - 1;
+
+        // Page-limited fetch for visible cards
         const url = buildTartansUrl();
         const res = await fetch(url, {
             headers: {
@@ -68,42 +98,44 @@ export async function loadTartans(page = 1) {
         const cr = res.headers.get('Content-Range');
         const total = cr?.includes('/') ? parseInt(cr.split('/')[1], 10) : data.length;
 
-        // update shared state
         setState({
             currentPage: page,
             totalPages: Math.max(1, Math.ceil(total / itemsPerPage))
         });
 
-        renderTartans(data, "cards");
+        renderTartans(data);
         renderPaginationControls();
 
-        // ✅ If any filter is active, rebuild dropdowns from current results
-        if (
-            activeFilters.clan ||
-            activeFilters.weight ||
-            activeFilters.range ||
-            activeFilters.weaver ||
-            activeFilters.query
-        ) {
-            updateFiltersFromData(data);
-        } else {
-            // ✅ If filters are cleared, repopulate dropdowns from ALL tartans
-            const urlAll = `${SUPABASE_URL}/rest/v1/tartans?select=clan,range!inner(range_name,weight!inner(name),weavers!inner(name))&order=clan.asc`;
-            const resAll = await fetch(urlAll, {
+        // ✅ Fetch all filtered rows in chunks for filter dropdowns
+        const optionsUrl = buildFilterOptionsUrl();
+        const chunkSize = 1000;
+        let allRows = [];
+        let chunkStart = 0;
+        let done = false;
+
+        while (!done) {
+            const resChunk = await fetch(optionsUrl, {
                 headers: {
                     apikey: SUPABASE_KEY,
                     Authorization: `Bearer ${SUPABASE_KEY}`,
-                    Range: '0-9999' // big enough to cover all rows
+                    Range: `${chunkStart}-${chunkStart + chunkSize - 1}`
                 }
             });
-            const rowsAll = await resAll.json();
-            updateFiltersFromData(rowsAll);
+            if (!resChunk.ok) break;
+
+            const chunk = await resChunk.json();
+            allRows.push(...chunk);
+            if (chunk.length < chunkSize) done = true;
+            chunkStart += chunkSize;
         }
 
+        updateFiltersFromData(allRows);
     } catch (err) {
         console.error('Error loading tartans:', err);
-        document.getElementById('tartan-cards').innerHTML = '';
-        document.getElementById('pagination-controls').innerHTML = '';
+        const cards = document.getElementById('tartan-cards');
+        const pager = document.getElementById('pagination-controls');
+        if (cards) cards.innerHTML = '';
+        if (pager) pager.innerHTML = '';
     }
 }
 

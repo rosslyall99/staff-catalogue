@@ -8,10 +8,10 @@ import {
 import { ensureFiltersPopulatedOnce } from './filters.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial load
+    // Initial load: render cards and pagination; also repopulates filters from full filtered dataset
     loadTartans(1);
 
-    // Populate filters globally on startup
+    // Populate filters globally on startup (optional; ensures dropdowns appear even before first render)
     ensureFiltersPopulatedOnce();
 
     // Lightbox close wiring
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     editModal?.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
     document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
 
-    // ✅ Edit form submit handler (Save button)
+    // Edit form submit handler (Save button)
     document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const { currentTartanId } = getState();
@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     // Catalogue modal close wiring
     document.getElementById('catalogue-close')?.addEventListener('click', closeCatalogueModal);
 
@@ -85,13 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput?.addEventListener('input', (e) => {
         activeFilters.query = (e.target.value || '').toLowerCase().trim();
         loadTartans(1);
-        clearBtn.style.display = activeFilters.query ? 'inline-block' : 'none';
+        if (clearBtn) clearBtn.style.display = activeFilters.query ? 'inline-block' : 'none';
     });
 
     clearBtn?.addEventListener('click', () => {
+        if (!searchInput) return;
         searchInput.value = '';
         activeFilters.query = '';
-        clearBtn.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
 
         // Reset filters
         activeFilters.clan = '';
@@ -114,10 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (id === 'filter-weight') activeFilters.weight = val;
             if (id === 'filter-weaver') activeFilters.weaver = val;
             if (id === 'filter-range') activeFilters.range = val;
+
+            // Reload tartans; filters will be repopulated using full filtered dataset
             loadTartans(1);
 
-            // ✅ show clear-search button when any filter is active
-            const clearBtn = document.getElementById('clear-search');
+            // Show clear-search button when any filter is active
             if (clearBtn) clearBtn.style.display = 'inline-block';
         });
     });
