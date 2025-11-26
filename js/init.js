@@ -7,11 +7,19 @@ import {
 } from './modal.js';
 import { ensureFiltersPopulatedOnce } from './filters.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initial load: render cards and pagination; also repopulates filters from full filtered dataset
-    loadTartans(1);
+/* ==========
+   Dynamic iframe height helper
+   ========== */
+function sendHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ iframeHeight: height }, "*");
+}
 
-    // Populate filters globally on startup (optional; ensures dropdowns appear even before first render)
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial load
+    loadTartans(1).then(() => sendHeight());
+
+    // Populate filters globally on startup
     ensureFiltersPopulatedOnce();
 
     // Lightbox close wiring
@@ -24,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     editModal?.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
     document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
 
-    // Edit form submit handler (Save button)
+    // Edit form submit handler
     document.getElementById('edit-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const { currentTartanId } = getState();
@@ -35,13 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
             weight: document.getElementById('edit-weight').value,
             range: document.getElementById('edit-range').value,
             image_url: document.getElementById('edit-image').value
-            // weaver is disabled, so not updated here
         };
 
         try {
             await updateTartan(currentTartanId, updates);
             closeEditModal();
-            loadTartans(1); // reload to show changes
+            loadTartans(1).then(() => sendHeight());
         } catch (err) {
             console.error('Error saving tartan:', err);
             alert('Failed to save changes');
@@ -58,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await deleteTartan(currentTartanId);
             closeEditModal();
-            loadTartans(1); // reload to reflect deletion
+            loadTartans(1).then(() => sendHeight());
         } catch (err) {
             console.error('Error deleting tartan:', err);
             alert('Failed to delete tartan');
@@ -66,7 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Catalogue modal close wiring
-    document.getElementById('catalogue-close')?.addEventListener('click', closeCatalogueModal);
+    document.getElementById('catalogue-close')?.addEventListener('click', () => {
+        closeCatalogueModal();
+        sendHeight(); // modal close changes height
+    });
 
     // Escape key closes all modals
     document.addEventListener('keydown', (e) => {
@@ -74,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             closeLightbox();
             closeEditModal();
             closeCatalogueModal();
+            sendHeight();
         }
     });
 
@@ -83,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchInput?.addEventListener('input', (e) => {
         activeFilters.query = (e.target.value || '').toLowerCase().trim();
-        loadTartans(1);
+        loadTartans(1).then(() => sendHeight());
         if (clearBtn) clearBtn.style.display = activeFilters.query ? 'inline-block' : 'none';
     });
 
@@ -99,11 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFilters.weaver = '';
         activeFilters.range = '';
 
-        // Reset to global options
         ensureFiltersPopulatedOnce(true);
 
-        // Reload tartans
-        loadTartans(1);
+        loadTartans(1).then(() => sendHeight());
     });
 
     // Filter dropdowns wiring
@@ -115,10 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (id === 'filter-weaver') activeFilters.weaver = val;
             if (id === 'filter-range') activeFilters.range = val;
 
-            // Reload tartans; filters will be repopulated using full filtered dataset
-            loadTartans(1);
+            loadTartans(1).then(() => sendHeight());
 
-            // Show clear-search button when any filter is active
             if (clearBtn) clearBtn.style.display = 'inline-block';
         });
     });
@@ -128,5 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('filters-container');
         const nowHidden = container.style.display === 'none' || getComputedStyle(container).display === 'none';
         container.style.display = nowHidden ? 'flex' : 'none';
+        sendHeight();
     });
 });
+
+// Recalculate height on resize
+window.addEventListener('resize', sendHeight);
