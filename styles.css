@@ -16,7 +16,7 @@
 body {
     font-family: 'Quicksand', sans-serif;
     margin: 0;
-    background: #f9f9f9;
+    background: #ffffff;
     color: #333;
 }
 
@@ -52,9 +52,11 @@ header {
     width: 30%;
     padding: 1rem;
     font-size: 2rem;
-    border: 2px solid #ccc;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     font-family: 'Quicksand', sans-serif;
     margin-left: 1rem;
+    background: #fff
 }
 
 
