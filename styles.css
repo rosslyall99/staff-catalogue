@@ -204,15 +204,17 @@ td {
 
 #lightbox-caption {
     position: absolute;
-    left: 50%;
     bottom: 12px;
+    left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.6);
     color: #fff;
     padding: 0.4rem 0.8rem;
     border-radius: 999px;
     font-size: 0.95rem;
-    z-index: 2;
+    z-index: 10;
+    pointer-events: none;
+    white-space: nowrap;
 }
 
 /* Edit Modal */
