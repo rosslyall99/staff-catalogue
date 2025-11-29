@@ -22,14 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Populate filters globally on startup
     ensureFiltersPopulatedOnce();
 
-    // Lightbox close wiring
+    /* ==========
+       Lightbox wiring
+       ========== */
     document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
     const lightbox = document.getElementById('lightbox');
-    lightbox?.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    lightbox?.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+    });
 
-    // Edit modal close wiring
+    /* ==========
+       Edit modal wiring
+       ========== */
     const editModal = document.getElementById('edit-modal');
-    editModal?.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
+    editModal?.addEventListener('click', (e) => {
+        if (e.target === editModal) closeEditModal();
+    });
     document.getElementById('cancel-btn')?.addEventListener('click', closeEditModal);
 
     // Edit form submit handler
@@ -72,13 +80,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Catalogue modal close wiring
-    document.getElementById('catalogue-close')?.addEventListener('click', () => {
-        closeCatalogueModal();
-        sendHeight(); // modal close changes height
+    /* ==========
+       Catalogue modal wiring
+       ========== */
+    const catalogueModal = document.getElementById('catalogue-modal');
+    const catalogueClose = document.getElementById('catalogue-close');
+
+    catalogueClose?.addEventListener('click', closeCatalogueModal);
+    catalogueModal?.addEventListener('click', (e) => {
+        if (e.target === catalogueModal) closeCatalogueModal();
     });
 
-    // Escape key closes all modals
+    document.querySelectorAll('.btn-catalogue').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const tartanId = e.target.dataset.tartanId; // optional if you pass tartan data
+            openCatalogueModal(tartanId);
+        });
+    });
+
+    /* ==========
+       Escape key closes all modals
+       ========== */
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeLightbox();
@@ -88,7 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Search input wiring
+    /* ==========
+       Search input wiring
+       ========== */
     const searchInput = document.getElementById('search-input');
     const clearBtn = document.getElementById('clear-search');
 
@@ -111,11 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFilters.range = '';
 
         ensureFiltersPopulatedOnce(true);
-
         loadTartans(1).then(() => sendHeight());
     });
 
-    // Filter dropdowns wiring
+    /* ==========
+       Filter dropdowns wiring
+       ========== */
     ['filter-clan', 'filter-weight', 'filter-weaver', 'filter-range'].forEach(id => {
         document.getElementById(id)?.addEventListener('input', (e) => {
             const val = (e.target.value || '').trim();
@@ -125,12 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (id === 'filter-range') activeFilters.range = val;
 
             loadTartans(1).then(() => sendHeight());
-
             if (clearBtn) clearBtn.style.display = 'inline-block';
         });
     });
 
-    // Toggle filters panel
+    /* ==========
+       Toggle filters panel
+       ========== */
     document.getElementById('toggle-filters')?.addEventListener('click', () => {
         const container = document.getElementById('filters-container');
         const nowHidden = container.style.display === 'none' || getComputedStyle(container).display === 'none';
@@ -139,5 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Recalculate height on resize
+/* ==========
+   Recalculate height on resize
+   ========== */
 window.addEventListener('resize', sendHeight);
