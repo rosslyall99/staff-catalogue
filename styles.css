@@ -1,20 +1,14 @@
-.montserrat-light {
-    font-family: "Montserrat", sans-serif;
+.open-sans-normal {
+    font-family: "Open Sans", sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
-}
-
-
-.quicksand-light {
-    font-family: "Quicksand", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
+    font-variation-settings:
+        "wdth" 100;
 }
 
 body {
-    font-family: 'Quicksand', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin: 0;
     background: #ffffff;
     color: #333;
@@ -45,7 +39,7 @@ header {
     font-size: 2rem;
     border-radius: 6px;
     border: 1px solid #ccc;
-    font-family: 'Quicksand', sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 
 #clear-search {
@@ -54,7 +48,7 @@ header {
     font-size: 2rem;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-family: 'Quicksand', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin-left: 1rem;
     background: #fff
 }
@@ -81,7 +75,7 @@ header {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    font-family: 'Quicksand', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 1rem;
     padding: 1rem;
     border-radius: 6px;
@@ -298,7 +292,7 @@ td {
 }
 
 .modal-actions button {
-    font-family: "Quicksand", sans-serif;
+    font-family: "Open Sans", sans-serif;
     flex: 1;
     /* each button takes equal share of space */
     min-width: 100px;
@@ -461,7 +455,7 @@ td {
 }
 
 .card-actions button {
-    font-family: "Quicksand", sans-serif;
+    font-family: "Open Sans", sans-serif;
     flex: 1;
     /* each button takes equal share of space */
     min-width: 100px;
@@ -517,7 +511,7 @@ td {
 }
 
 .pagination-bar button {
-    font-family: 'Quicksand', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 1rem;
     font-weight: 600;
     background-color: #fff;
