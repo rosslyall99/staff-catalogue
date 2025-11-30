@@ -27,9 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
        ========== */
     document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
     const lightbox = document.getElementById('lightbox');
-    lightbox?.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeLightbox();
-    });
 
     /* ==========
        Edit modal wiring
