@@ -1,0 +1,206 @@
+/* ===========================
+   TartanDB Styles (Scoped)
+   =========================== */
+.tartanDB {
+    font-family: "Quicksand", sans-serif;
+    color: #333;
+    background: #fff;
+}
+
+/* Search bar */
+.tartanDB-search {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #fff;
+}
+
+.tartanDB-search input {
+    flex: 1;
+    padding: 0.8rem;
+    font-size: 1.2rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.tartanDB-search button {
+    margin-left: 0.5rem;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* Filters */
+.tartanDB-filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #fff;
+    flex-wrap: wrap;
+}
+
+.tartanDB-filters select {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+/* Cards grid */
+.tartanDB-cards {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    padding: 1rem;
+}
+
+.tartanDB-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 1rem;
+    transition: 0.2s ease;
+}
+
+.tartanDB-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+.tartanDB-card img {
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    aspect-ratio: 3/2;
+}
+
+.tartanDB-card h2 {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tartanDB-card p {
+    margin: 0.25rem 0;
+    font-size: 0.95rem;
+}
+
+/* Card actions */
+.tartanDB-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.tartanDB-card-actions button {
+    flex: 1;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.tartanDB-card-actions button:hover {
+    background: #0056b3;
+}
+
+/* Pagination */
+.tartanDB-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.tartanDB-pagination button {
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tartanDB-pagination button:hover {
+    background: #007BFF;
+    color: #fff;
+    border-color: #007BFF;
+}
+
+.tartanDB-pagination button:disabled {
+    background: #eee;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Modal (Lightbox) */
+.tartanDB-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+}
+
+.tartanDB-modal.open {
+    display: grid;
+}
+
+.tartanDB-modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tartanDB-modal-content img {
+    max-width: 100%;
+    max-height: 80vh;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
+.tartanDB-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Caption */
+.tartanDB-modal-content figcaption {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    pointer-events: none;
+}

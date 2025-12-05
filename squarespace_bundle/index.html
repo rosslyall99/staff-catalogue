@@ -1,0 +1,37 @@
+<!-- TartanDB HTML Scaffold -->
+<div class="tartanDB">
+    <!-- Search bar -->
+    <div class="tartanDB-search">
+        <input type="text" id="tartanDB-search-input" placeholder="Search tartans..." />
+        <button type="button" id="tartanDB-clear-search" style="display:none;">Clear</button>
+    </div>
+
+    <!-- Filter dropdowns -->
+    <div class="tartanDB-filters">
+        <select id="tartanDB-filter-clan" data-label="Clan"></select>
+        <select id="tartanDB-filter-weight" data-label="Weight"></select>
+        <select id="tartanDB-filter-weaver" data-label="Weaver"></select>
+        <select id="tartanDB-filter-range" data-label="Range"></select>
+    </div>
+
+    <!-- Grid container for tartan cards -->
+    <main>
+        <div class="tartanDB-cards" id="tartanDB-cards">
+            <!-- Cards injected by JS -->
+        </div>
+    </main>
+
+    <!-- Pagination controls -->
+    <div class="tartanDB-pagination" id="tartanDB-pagination-controls"></div>
+
+    <!-- Modal for image lightbox -->
+    <div id="tartanDB-lightbox" class="tartanDB-modal" aria-hidden="true">
+        <span id="tartanDB-lightbox-close" class="tartanDB-close" aria-label="Close">×</span>
+        <div class="tartanDB-modal-content">
+            <div class="tartanDB-image-wrapper">
+                <img id="tartanDB-lightbox-img" src="" alt="Tartan preview" />
+                <figcaption id="tartanDB-lightbox-caption"></figcaption>
+            </div>
+        </div>
+    </div>
+</div>
